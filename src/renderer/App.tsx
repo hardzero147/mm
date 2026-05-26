@@ -3177,40 +3177,51 @@ function DetailView({
             </div>
           </div>
 
-          <div className="part-hero-stats">
-            <div className="part-hero-qty">
-              <span>Quantity</span>
-              <strong>{selectedPart.quantity || "0"}</strong>
-            </div>
-            <div className={`part-hero-status ${selectedPart.statusOfParts.toLowerCase().includes("obsolete") ? "is-obsolete" : ""}`}>
-              <span>Status</span>
-              <strong>{selectedPart.statusOfParts || "-"}</strong>
-            </div>
-          </div>
-
           <dl className="detail-list">
             <Info label="Brand" value={selectedPart.brand} />
             <Info label="Model" value={selectedPart.model} />
+            <Info label="Quantity" value={selectedPart.quantity || "0"} />
+            <Info label="Status" value={selectedPart.statusOfParts || "-"} danger={selectedPart.statusOfParts.toLowerCase().includes("obsolete")} />
             <Info label="Software Support" value={selectedPart.softwareSupport || "-"} wide />
-            <div className="wide detail-section-label">
-              <PackagePlus size={13} />
+          </dl>
+
+          <div className="spare-section">
+            <div className="spare-section-title">
+              <PackagePlus size={14} />
               Spare parts
             </div>
-            <Info label="MT Store" value={selectedPart.mtStore || "-"} spare={!!selectedPart.mtStore && selectedPart.mtStore !== "-"} />
-            <Info label="Second hand" value={selectedPart.secondHand || "-"} spare={!!selectedPart.secondHand && selectedPart.secondHand !== "-"} />
-          </dl>
+            <div className="spare-grid">
+              <SparePart label="MT Store" value={selectedPart.mtStore} icon={<Boxes size={20} />} />
+              <SparePart label="Second hand" value={selectedPart.secondHand} icon={<Recycle size={20} />} />
+            </div>
+          </div>
         </div>
       </aside>
     </>
   );
 }
 
-function Info({ label, value, wide, danger, spare }: { label: string; value: string; wide?: boolean; danger?: boolean; spare?: boolean }) {
-  const cls = [wide ? "wide" : "", spare ? "spare-available" : ""].filter(Boolean).join(" ");
+function Info({ label, value, wide, danger }: { label: string; value: string; wide?: boolean; danger?: boolean }) {
   return (
-    <div className={cls || undefined}>
+    <div className={wide ? "wide" : undefined}>
       <dt>{label}</dt>
       <dd className={danger ? "danger-text" : ""}>{value}</dd>
+    </div>
+  );
+}
+
+function SparePart({ label, value, icon }: { label: string; value: string; icon: ReactNode }) {
+  const available = !!value && value !== "-";
+  return (
+    <div className={`spare-card ${available ? "spare-on" : "spare-off"}`}>
+      <div className="spare-card-top">
+        <div className="spare-card-icon">{icon}</div>
+        <div className={`spare-badge ${available ? "available" : ""}`}>
+          {available ? <><CheckCircle2 size={11} />Available</> : "—"}
+        </div>
+      </div>
+      <span className="spare-card-label">{label}</span>
+      <strong className="spare-card-value">{available ? value : "Not available"}</strong>
     </div>
   );
 }
