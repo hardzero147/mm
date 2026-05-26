@@ -2141,9 +2141,18 @@ export default function App() {
           ) : (
             <aside className="detail-panel empty-detail-panel">
               <div className="empty-detail">
-                {loading ? <Loader2 className="spin" size={38} /> : <Boxes size={38} />}
-                <strong>{loading ? "Loading data" : "Select a machine"}</strong>
-                <span>{loading ? "กำลังเตรียมรายการเครื่องและอะไหล่..." : "เลือกรายการเพื่อดูรายละเอียดหรือเพิ่มข้อมูลใหม่"}</span>
+                <div className="empty-detail-icon">
+                  {loading ? <Loader2 className="spin" size={32} /> : <CircuitBoard size={32} />}
+                </div>
+                <strong className="empty-detail-title">
+                  {loading ? "Loading data" : "Parts Manager PM"}
+                </strong>
+                <span className="empty-detail-desc">
+                  {loading
+                    ? <TypewriterText key="loading" text="กำลังเตรียมรายการเครื่องและอะไหล่ กรุณารอสักครู่..." speed={55} />
+                    : <TypewriterText key="ready" text="เลือกเครื่องจากรายการด้านซ้ายเพื่อดูรายละเอียดข้อมูลอะไหล่และ spare parts ของเครื่องนั้น" speed={42} delay={250} />
+                  }
+                </span>
                 {loading ? null : (
                   <button className="primary-button" onClick={startAddMachine}>
                     <Plus size={18} />
@@ -2522,14 +2531,14 @@ function MachineResultsPanel({
           <div className="empty-state">
             <Loader2 className="spin" size={34} />
             <strong>Loading data</strong>
-            <span>กำลังโหลดข้อมูลจากฐานข้อมูล โปรแกรมพร้อมใช้งานทันทีเมื่อโหลดเสร็จ</span>
+            <span><TypewriterText key="list-loading" text="กำลังโหลดข้อมูลจากฐานข้อมูล..." speed={55} /></span>
           </div>
         ) : null}
         {!loading && !groups.length ? (
           <div className="empty-state">
             <FileSpreadsheet size={34} />
             <strong>No matching parts</strong>
-            <span>ปรับ filter หรือ import Excel เพื่อเริ่มใช้งาน</span>
+            <span><TypewriterText key="list-empty" text="ปรับ filter หรือ import Excel เพื่อเริ่มใช้งาน" speed={48} delay={150} /></span>
           </div>
         ) : null}
       </div>
@@ -3223,6 +3232,33 @@ function SparePart({ label, value, icon }: { label: string; value: string; icon:
       <span className="spare-card-label">{label}</span>
       <strong className="spare-card-value">{available ? value : "Not available"}</strong>
     </div>
+  );
+}
+
+function TypewriterText({ text, speed = 45, delay = 0 }: { text: string; speed?: number; delay?: number }) {
+  const [len, setLen] = useState(0);
+  const [active, setActive] = useState(delay === 0);
+
+  useEffect(() => {
+    setLen(0);
+    setActive(false);
+    if (delay === 0) { setActive(true); return; }
+    const t = setTimeout(() => setActive(true), delay);
+    return () => clearTimeout(t);
+  }, [text, delay]);
+
+  useEffect(() => {
+    if (!active || len >= text.length) return;
+    const t = setTimeout(() => setLen(l => l + 1), speed);
+    return () => clearTimeout(t);
+  }, [active, len, text, speed]);
+
+  const done = len >= text.length;
+  return (
+    <>
+      {text.slice(0, len)}
+      <span className={`tw-cursor${done ? " done" : ""}`} aria-hidden="true" />
+    </>
   );
 }
 

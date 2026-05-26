@@ -2678,7 +2678,6 @@ legend {
 }
 
 .empty-state,
-.empty-detail,
 .loading-screen {
   display: grid;
   place-items: center;
@@ -2689,18 +2688,11 @@ legend {
   text-align: center;
 }
 
-.empty-detail {
-  flex: 1;
-}
-
-.empty-state strong,
-.empty-detail strong {
+.empty-state strong {
   color: var(--text);
 }
 
-.empty-state svg,
-.empty-detail svg,
-.loading-screen svg {
+.empty-state svg {
   width: 44px;
   height: 44px;
   padding: 10px;
@@ -2710,13 +2702,83 @@ legend {
   border: 1px solid rgba(69, 196, 182, 0.22);
 }
 
-.empty-state span,
-.empty-detail span,
-.loading-screen span {
+.empty-state span {
   max-width: 320px;
   color: var(--faint);
   font-size: 13px;
-  line-height: 1.45;
+  line-height: 1.55;
+}
+
+/* ── Empty detail panel (center of 3-col layout) ────────── */
+.empty-detail {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  text-align: center;
+  padding: 32px 24px;
+}
+
+.empty-detail-icon {
+  width: 76px;
+  height: 76px;
+  border-radius: 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #bff9f2;
+  background:
+    linear-gradient(145deg, rgba(69, 196, 182, 0.18), rgba(115, 148, 232, 0.1)),
+    rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(69, 196, 182, 0.28);
+  box-shadow:
+    0 0 50px rgba(69, 196, 182, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.07);
+}
+
+.empty-detail-icon svg {
+  width: 32px;
+  height: 32px;
+}
+
+.empty-detail-title {
+  font-size: 22px;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: -0.01em;
+}
+
+.empty-detail-desc {
+  max-width: 360px;
+  color: var(--faint);
+  font-size: 14px;
+  line-height: 1.65;
+  min-height: 3.3em;
+}
+
+/* ── Typewriter cursor ──────────────────────────────────── */
+.tw-cursor {
+  display: inline-block;
+  width: 2px;
+  height: 0.82em;
+  background: var(--teal);
+  margin-left: 2px;
+  vertical-align: text-bottom;
+  border-radius: 1px;
+  animation: tw-blink 0.75s step-end infinite;
+}
+
+.tw-cursor.done {
+  background: var(--muted);
+  opacity: 0.35;
+  animation: tw-blink 1.6s step-end infinite;
+}
+
+@keyframes tw-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
 }
 
 .loading-screen {
