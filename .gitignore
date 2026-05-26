@@ -1,0 +1,10 @@
+node_modules/
+.vs/
+dist/
+release/
+*.log
+.env
+.vite/
+*.tsbuildinfo
+coverage/
+Electrical Parts Manager*.lnk

@@ -1,0 +1,103 @@
+{
+  "name": "parts-manager-pm",
+  "version": "1.0.0",
+  "description": "Windows desktop inventory manager for electrical spare parts packing machine data.",
+  "main": "dist/main/main.js",
+  "author": "Preec",
+  "license": "UNLICENSED",
+  "private": true,
+  "type": "commonjs",
+  "scripts": {
+    "dev": "npm run build:main && concurrently -k \"vite --host 127.0.0.1\" \"wait-on http://127.0.0.1:5173 && cross-env VITE_DEV_SERVER_URL=http://127.0.0.1:5173 node scripts/run-electron-app.cjs\"",
+    "build:main": "tsc -p tsconfig.electron.json",
+    "build:renderer": "vite build",
+    "build": "npm run build:main && npm run build:renderer",
+    "verify:import": "tsx scripts/verify-import.ts",
+    "verify:db": "npm run build:main && node scripts/run-db-smoke.cjs",
+    "verify:ui": "node scripts/run-visual-check.cjs",
+    "perf:100k": "npm run build && node scripts/run-perf-100k.cjs 100000",
+    "perf:renderer": "node scripts/renderer-perf-100k.cjs 100000",
+    "sign:local": "node scripts/run-sign-local.cjs",
+    "dist": "node scripts/gen-icon.cjs && node scripts/gen-installer-bmp.cjs && npm run build && electron-builder --win nsis && npm run sign:local",
+    "lint": "tsc --noEmit && tsc -p tsconfig.electron.json --noEmit"
+  },
+  "dependencies": {
+    "@vitejs/plugin-react": "^5.0.4",
+    "exceljs": "^4.4.0",
+    "lucide-react": "^0.468.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "sql.js": "^1.13.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "@types/react": "^18.3.18",
+    "@types/react-dom": "^18.3.5",
+    "@types/sql.js": "^1.4.9",
+    "concurrently": "^9.1.0",
+    "cross-env": "^7.0.3",
+    "electron": "^42.2.0",
+    "electron-builder": "^26.8.1",
+    "eslint": "^10.4.0",
+    "playwright-core": "^1.60.0",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2",
+    "vite": "^6.0.5",
+    "wait-on": "^8.0.1"
+  },
+  "overrides": {
+    "uuid": "^11.1.1"
+  },
+  "build": {
+    "appId": "com.preec.partsmanagerpm",
+    "productName": "Parts Manager PM",
+    "afterPack": "scripts/electron-builder-after-pack.cjs",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "dist/**/*",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "node_modules/sql.js/dist/sql-wasm.wasm",
+        "to": "sql-wasm.wasm"
+      }
+    ],
+    "win": {
+      "icon": "build/icon.ico",
+      "signAndEditExecutable": false,
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Parts Manager PM",
+      "installerHeader": "build/installer-header.bmp",
+      "installerSidebar": "build/installer-sidebar.bmp",
+      "license": "LICENSE.rtf",
+      "warningsAsErrors": false,
+      "perMachine": false,
+      "allowElevation": false,
+      "runAfterFinish": true,
+      "deleteAppDataOnUninstall": false,
+      "menuCategory": "Parts Manager",
+      "installerLanguages": [
+        "en-US"
+      ],
+      "unicode": true,
+      "displayLanguageSelector": false
+    },
+    "beforeBuild": null
+  }
+}
