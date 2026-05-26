@@ -10,6 +10,7 @@ import {
   FileSpreadsheet,
   HelpCircle,
   Keyboard,
+  Moon,
   Recycle,
   Loader2,
   PackagePlus,
@@ -19,6 +20,7 @@ import {
   Save,
   Search,
   SlidersHorizontal,
+  Sun,
   Trash2,
   TriangleAlert,
   Upload,
@@ -32,7 +34,7 @@ declare global {
     };
   }
 }
-import { useCallback, useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useDeferredValue, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import type { MutableRefObject, ReactNode, UIEvent } from "react";
 import type {
   ApiResponse,
@@ -105,7 +107,7 @@ type PartClusterBuilder = {
   quantityTotal: number;
 };
 
-const MACHINE_ROW_ESTIMATE = 128;
+const MACHINE_ROW_ESTIMATE = 140;
 const PART_ROW_ESTIMATE = 58;
 const VIRTUAL_OVERSCAN = 8;
 
@@ -1198,7 +1200,34 @@ function formatDate(value?: string): string {
   return thaiDateTimeFormatter.format(new Date(value));
 }
 
+type Theme = "dark" | "light";
+
+function useTheme(): [Theme, () => void] {
+  const [theme, setTheme] = useState<Theme>(() => {
+    try {
+      const saved = localStorage.getItem("pm-theme");
+      return saved === "light" ? "light" : "dark";
+    } catch {
+      return "dark";
+    }
+  });
+
+  useLayoutEffect(() => {
+    document.documentElement.setAttribute("data-theme", theme);
+    try { localStorage.setItem("pm-theme", theme); } catch {}
+  }, [theme]);
+
+  const toggleTheme = useCallback(() => {
+    document.documentElement.classList.add("theme-anim");
+    setTheme((t) => (t === "dark" ? "light" : "dark"));
+    window.setTimeout(() => document.documentElement.classList.remove("theme-anim"), 450);
+  }, []);
+
+  return [theme, toggleTheme];
+}
+
 export default function App() {
+  const [theme, toggleTheme] = useTheme();
   const [snapshot, setSnapshot] = useState<AppDataSnapshot | null>(null);
   const [filters, setFilters] = useState<FilterState>(emptyFilters);
   const [selectedGroupKey, setSelectedGroupKey] = useState("");
@@ -2013,6 +2042,14 @@ export default function App() {
               <HelpCircle size={18} />
               Help
             </button>
+            <button
+              className="ghost-button theme-toggle"
+              onClick={toggleTheme}
+              title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+              aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+            >
+              {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
+            </button>
           </div>
         </header>
 
@@ -2497,6 +2534,9 @@ function MachineResultsPanel({
           const selectedCount = countSelectedParts(group.parts, selectedPartIds);
           const selectionClass =
             selectedCount === 0 ? "" : selectedCount === group.parts.length ? "selection-full" : "selection-partial";
+          const hasMtStore = group.parts.some((p) => hasSpareValue(p.mtStore));
+          const hasSecondHand = group.parts.some((p) => hasSpareValue(p.secondHand));
+          const obsoleteCount = group.parts.filter((p) => p.statusOfParts.toLowerCase().includes("obsolete")).length;
 
           return (
             <div key={group.key} className={`machine-row ${group.key === selectedGroupKey ? "selected" : ""} ${selectionClass}`}>
@@ -2504,15 +2544,14 @@ function MachineResultsPanel({
               <button type="button" className="machine-content" onClick={() => onSelectGroup(group)}>
                 <div className="machine-row-top">
                   <div className="machine-title">
-                    <div>
-                      <strong>{group.machineName || "Unnamed machine"}</strong>
-                      <span>{group.machineCode || "No machine code"}</span>
-                    </div>
+                    <strong>{group.machineName || "Unnamed machine"}</strong>
+                    {group.machineCode ? <span className="machine-code-tag">{group.machineCode}</span> : null}
                   </div>
                   <em>{group.parts.length} part{group.parts.length > 1 ? "s" : ""}</em>
                 </div>
                 <div className="machine-meta">
-                  <span>Plant {formatPlantLabel(group.sourceSheet, group.plant)}</span>
+                  <span><b>Plant</b>{formatPlantLabel(group.sourceSheet, group.plant)}</span>
+                  {group.location ? <span><b>Loc</b>{group.location}</span> : null}
                 </div>
                 <div className="part-chip-row">
                   {group.parts.slice(0, 4).map((part) => (
@@ -2522,6 +2561,13 @@ function MachineResultsPanel({
                   ))}
                   {group.parts.length > 4 ? <span>+{group.parts.length - 4}</span> : null}
                 </div>
+                {(hasMtStore || hasSecondHand || obsoleteCount > 0) ? (
+                  <div className="machine-status-row">
+                    {hasMtStore ? <span className="msr-badge msr-mt"><Boxes size={10} />MT Store</span> : null}
+                    {hasSecondHand ? <span className="msr-badge msr-sh"><Recycle size={10} />2nd Hand</span> : null}
+                    {obsoleteCount > 0 ? <span className="msr-badge msr-obs"><TriangleAlert size={10} />{obsoleteCount} Obs</span> : null}
+                  </div>
+                ) : null}
               </button>
             </div>
           );
