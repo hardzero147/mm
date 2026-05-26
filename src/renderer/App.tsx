@@ -3266,7 +3266,7 @@ function Info({ label, value, wide, danger }: { label: string; value: string; wi
 }
 
 function SparePart({ label, value, icon }: { label: string; value: string; icon: ReactNode }) {
-  const available = !!value && value !== "-";
+  const available = hasSpareValue(value);
   return (
     <div className={`spare-card ${available ? "spare-on" : "spare-off"}`}>
       <div className="spare-card-top">
