@@ -3997,7 +3997,7 @@ kbd {
   --field: #f5f7fb;
   --text: #1a2535;
   --muted: #4e627d;
-  --faint: #7a8fa8;
+  --faint: #536880;
   --row: #f3f6fb;
   --row-hover: #e8edf5;
   --row-selected: #d8f3ef;
@@ -4109,7 +4109,7 @@ kbd {
   color: #35baac;
 }
 [data-theme="light"] .global-search input::placeholder {
-  color: #7a8fa8;
+  color: #6d859c;
 }
 [data-theme="light"] .global-search:focus-within {
   border-color: rgba(69, 196, 182, 0.72);
@@ -4152,7 +4152,7 @@ kbd {
 }
 [data-theme="light"] .readonly-field input,
 [data-theme="light"] .readonly-field textarea {
-  color: #7a8fa8;
+  color: #536880;
   background:
     linear-gradient(180deg, rgba(0, 0, 0, 0.01), rgba(0, 0, 0, 0)),
     rgba(0, 0, 0, 0.04);
@@ -4421,6 +4421,17 @@ kbd {
     rgba(0, 0, 0, 0.04);
 }
 
+/* ── Detail list labels (overrides #aebbd0 dark-mode hardcode) ─── */
+[data-theme="light"] .detail-section-label {
+  color: var(--muted);
+}
+[data-theme="light"] .detail-list dt {
+  color: var(--muted);
+}
+[data-theme="light"] .spare-section-title {
+  color: #1a8a80;
+}
+
 /* ── Detail / part card ─────────────────────────────────── */
 [data-theme="light"] .part-card-name {
   color: #1a2535;
@@ -4463,13 +4474,13 @@ kbd {
   color: #1a7a72;
 }
 [data-theme="light"] .spare-off .spare-card-label {
-  color: #7a8fa8;
+  color: #536880;
 }
 [data-theme="light"] .spare-on .spare-card-value {
   color: #0e3a38;
 }
 [data-theme="light"] .spare-off .spare-card-value {
-  color: #a0afc0;
+  color: #536880;
 }
 
 /* ── Edit form ──────────────────────────────────────────── */
@@ -4724,7 +4735,7 @@ kbd {
     rgba(236, 240, 248, 0.7);
 }
 [data-theme="light"] .spare-off .spare-card-icon {
-  color: #7a8fa8;
+  color: #536880;
   background: rgba(0, 0, 0, 0.06);
   border-color: rgba(0, 0, 0, 0.09);
 }
@@ -4738,7 +4749,7 @@ kbd {
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6);
 }
 [data-theme="light"] .part-model-list-head {
-  color: #7a8fa8;
+  color: #536880;
 }
 [data-theme="light"] .part-cluster-model-title strong {
   color: #8a5200;
