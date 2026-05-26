@@ -2455,7 +2455,7 @@ function MachineResultsPanel({
             <SlidersHorizontal size={14} />
             Machines
           </span>
-          <strong>{loading && !hasSnapshot ? "Loading parts..." : `${groups.length} groups / ${filteredPartCount} parts`}</strong>
+          <strong>{loading && !hasSnapshot ? "Loading parts..." : `${groups.length} machines / ${filteredPartCount} parts`}</strong>
           <small>{filterSummary}</small>
         </div>
         <div className="result-actions">
@@ -3181,12 +3181,10 @@ function DetailView({
             <Info label="Model" value={selectedPart.model} />
             <Info label="Quantity" value={selectedPart.quantity} />
             <Info label="Status" value={selectedPart.statusOfParts || "-"} danger={selectedPart.statusOfParts.toLowerCase().includes("obsolete")} />
-            <Info label="Software Support" value={selectedPart.softwareSupport || "-"} />
+            <Info label="Software Support" value={selectedPart.softwareSupport || "-"} wide />
+            <div className="wide detail-section-label">Spare parts</div>
             <Info label="MT Store" value={selectedPart.mtStore || "-"} />
             <Info label="Second hand" value={selectedPart.secondHand || "-"} />
-            <Info label="Action by Maker" value={selectedPart.actionByMaker || "-"} />
-            <Info label="Action by MT" value={selectedPart.actionByMt || "-"} />
-            <Info label="Solution" value={selectedPart.howToSolution || "-"} wide />
           </dl>
         </div>
       </aside>

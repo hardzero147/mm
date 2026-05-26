@@ -2317,6 +2317,17 @@ button:focus-visible {
   grid-column: 1 / -1;
 }
 
+.detail-section-label {
+  padding: 6px 0 2px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #aebbd0;
+  border-top: 1px solid var(--border);
+  margin-top: 4px;
+}
+
 .detail-list dt,
 .detail-list dd {
   margin: 0;
