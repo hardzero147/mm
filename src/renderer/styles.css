@@ -4637,3 +4637,127 @@ kbd {
 [data-theme="light"] .usage-tip-body strong {
   color: #1a2535;
 }
+
+/* ── Compact button + detail-actions button (missed in initial pass) ── */
+[data-theme="light"] .compact-button,
+[data-theme="light"] .detail-actions button {
+  color: #1a2535;
+  border-color: rgba(0, 0, 0, 0.1);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.82), rgba(230, 235, 244, 0.7)),
+    rgba(0, 0, 0, 0.04);
+}
+[data-theme="light"] .compact-button:hover:not(:disabled),
+[data-theme="light"] .detail-actions button:hover:not(:disabled) {
+  color: #1a2535;
+  border-color: rgba(0, 0, 0, 0.18);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.95), rgba(218, 226, 238, 0.88)),
+    rgba(0, 0, 0, 0.06);
+  box-shadow: var(--button-inset), 0 8px 22px rgba(0, 0, 0, 0.09);
+}
+
+/* ── Part rows ──────────────────────────────────────────────────── */
+[data-theme="light"] .part-row {
+  border-color: rgba(0, 0, 0, 0.09);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.7), rgba(255, 255, 255, 0.3)),
+    var(--row);
+}
+[data-theme="light"] .part-row:hover:not(.selected) {
+  border-color: rgba(0, 0, 0, 0.14);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.4)),
+    var(--row-hover);
+}
+[data-theme="light"] .part-row.selected {
+  border-color: rgba(236, 163, 58, 0.72);
+  background:
+    linear-gradient(90deg, rgba(236, 163, 58, 0.22), rgba(236, 163, 58, 0.06)),
+    #fff8ec;
+  box-shadow: inset 0 0 0 1px rgba(236, 163, 58, 0.14), 0 8px 18px rgba(0, 0, 0, 0.06);
+}
+
+/* ── Machine rows ───────────────────────────────────────────────── */
+[data-theme="light"] .machine-row {
+  border-color: rgba(0, 0, 0, 0.08);
+  border-left-color: transparent;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0.2)),
+    var(--row);
+}
+[data-theme="light"] .machine-row:hover {
+  border-color: rgba(0, 0, 0, 0.14);
+  border-left-color: rgba(69, 196, 182, 0.6);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.75), rgba(255, 255, 255, 0.3)),
+    var(--row-hover);
+}
+[data-theme="light"] .machine-row.selected {
+  border-color: rgba(69, 196, 182, 0.6);
+  border-left-color: var(--teal);
+  background:
+    linear-gradient(90deg, rgba(69, 196, 182, 0.2), rgba(69, 196, 182, 0.04) 48%),
+    var(--row-selected);
+  box-shadow: inset 0 0 0 1px rgba(69, 196, 182, 0.14), 0 12px 28px rgba(0, 0, 0, 0.07);
+}
+[data-theme="light"] .machine-row.selection-full {
+  border-color: rgba(69, 196, 182, 0.4);
+  border-left-color: var(--teal);
+  background: linear-gradient(90deg, rgba(69, 196, 182, 0.14), rgba(242, 246, 252, 0.95) 42%);
+}
+
+/* ── Spare cards ────────────────────────────────────────────────── */
+[data-theme="light"] .spare-card {
+  border-color: rgba(0, 0, 0, 0.09);
+}
+[data-theme="light"] .spare-card.spare-on {
+  border-color: rgba(69, 196, 182, 0.38);
+  background:
+    linear-gradient(160deg, rgba(69, 196, 182, 0.12), rgba(69, 196, 182, 0.03)),
+    rgba(232, 255, 252, 0.75);
+  box-shadow: inset 0 1px 0 rgba(69, 196, 182, 0.1), 0 8px 20px rgba(0, 0, 0, 0.05);
+}
+[data-theme="light"] .spare-card.spare-off {
+  background:
+    linear-gradient(180deg, rgba(0, 0, 0, 0.018), rgba(0, 0, 0, 0.005)),
+    rgba(236, 240, 248, 0.7);
+}
+[data-theme="light"] .spare-off .spare-card-icon {
+  color: #7a8fa8;
+  background: rgba(0, 0, 0, 0.06);
+  border-color: rgba(0, 0, 0, 0.09);
+}
+
+/* ── Part model list (expanded cluster inner table) ────────────── */
+[data-theme="light"] .part-model-list {
+  border-color: rgba(0, 0, 0, 0.08);
+  background:
+    linear-gradient(180deg, rgba(0, 0, 0, 0.03), rgba(0, 0, 0, 0.01)),
+    rgba(230, 235, 244, 0.6);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+[data-theme="light"] .part-model-list-head {
+  color: #7a8fa8;
+}
+[data-theme="light"] .part-cluster-model-title strong {
+  color: #8a5200;
+}
+[data-theme="light"] .part-child-row {
+  border-color: rgba(0, 0, 0, 0.07);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.75), rgba(255, 255, 255, 0.4)),
+    rgba(240, 244, 250, 0.9);
+}
+[data-theme="light"] .part-child-row:hover {
+  border-color: rgba(69, 196, 182, 0.3);
+  background:
+    linear-gradient(180deg, rgba(69, 196, 182, 0.1), rgba(69, 196, 182, 0.02)),
+    rgba(232, 248, 246, 0.9);
+}
+[data-theme="light"] .part-child-row.selected {
+  border-color: rgba(236, 163, 58, 0.54);
+  background:
+    linear-gradient(90deg, rgba(236, 163, 58, 0.18), rgba(236, 163, 58, 0.06)),
+    #fff8ec;
+}
