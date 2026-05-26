@@ -528,7 +528,6 @@ legend,
 .import-status span,
 .import-status small,
 .result-title span,
-.selected-card-title span,
 .part-section-heading span,
 .detail-header > div > span {
   color: var(--muted);
@@ -2244,21 +2243,114 @@ button:focus-visible {
   border-radius: 0;
   padding: 0 3px 0 0;
   scrollbar-gutter: stable;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
-.selected-card-title {
+/* ── Part card header ────────────────────────────────── */
+.part-card-header {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 8px;
-  margin-bottom: 10px;
+  gap: 10px;
 }
 
-.selected-card-title strong {
+.part-card-identity {
+  min-width: 0;
+}
+
+.part-card-type {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--teal);
+  opacity: 0.82;
+}
+
+.part-card-name {
+  margin: 5px 0 0;
+  font-size: 22px;
+  font-weight: 800;
+  line-height: 1.1;
+  color: #ffffff;
+  overflow-wrap: anywhere;
+}
+
+.part-card-actions {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+  align-items: center;
+  padding-top: 2px;
+}
+
+/* ── Hero stats: Quantity + Status ───────────────────── */
+.part-hero-stats {
+  display: grid;
+  grid-template-columns: minmax(80px, 0.55fr) minmax(0, 1fr);
+  gap: 8px;
+}
+
+.part-hero-qty,
+.part-hero-status {
+  border-radius: 10px;
+  padding: 12px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background:
+    linear-gradient(160deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.01)),
+    rgba(18, 21, 27, 0.3);
+}
+
+.part-hero-qty {
+  border-color: rgba(69, 196, 182, 0.3);
+  background:
+    linear-gradient(160deg, rgba(69, 196, 182, 0.13), rgba(69, 196, 182, 0.03)),
+    rgba(14, 34, 32, 0.3);
+}
+
+.part-hero-qty span,
+.part-hero-status span {
   display: block;
-  margin-top: 2px;
-  font-size: 18px;
-  line-height: 1.14;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+
+.part-hero-qty strong {
+  display: block;
+  font-size: 36px;
+  font-weight: 900;
+  line-height: 1;
+  color: #8ef8ee;
+  letter-spacing: -0.02em;
+}
+
+.part-hero-status strong {
+  display: block;
+  font-size: 15px;
+  font-weight: 800;
+  line-height: 1.25;
+  color: #f0f6ff;
+  overflow-wrap: anywhere;
+}
+
+.part-hero-status.is-obsolete {
+  border-color: rgba(238, 102, 114, 0.38);
+  background:
+    linear-gradient(160deg, rgba(238, 102, 114, 0.16), rgba(238, 102, 114, 0.04)),
+    rgba(30, 14, 16, 0.3);
+}
+
+.part-hero-status.is-obsolete strong {
+  color: #ffd9dd;
 }
 
 .detail-actions {
@@ -2320,14 +2412,22 @@ button:focus-visible {
 }
 
 .detail-section-label {
-  padding: 7px 0 2px;
+  padding: 8px 0 3px;
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: #aebbd0;
   border-top: 1px solid var(--border);
-  margin-top: 4px;
+  margin-top: 2px;
+  background: transparent !important;
+  border-bottom: none !important;
+  border-left: none !important;
+  border-right: none !important;
+  box-shadow: none !important;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .detail-list dt,
@@ -2349,6 +2449,21 @@ button:focus-visible {
   font-size: 14px;
   line-height: 1.32;
   overflow-wrap: anywhere;
+}
+
+.detail-list .spare-available {
+  border-color: rgba(69, 196, 182, 0.34);
+  background:
+    linear-gradient(160deg, rgba(69, 196, 182, 0.12), rgba(69, 196, 182, 0.03)),
+    rgba(14, 34, 32, 0.28);
+}
+
+.detail-list .spare-available dt {
+  color: #7de8df;
+}
+
+.detail-list .spare-available dd {
+  color: #d4faf6;
 }
 
 .danger-text {
@@ -3329,7 +3444,7 @@ legend {
   }
 
   .detail-header,
-  .selected-card-title,
+  .part-card-header,
   .part-section-heading,
   .machine-overview-title {
     align-items: flex-start;

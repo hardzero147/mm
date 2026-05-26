@@ -3160,31 +3160,44 @@ function DetailView({
 
       <aside className="detail-panel selected-detail-panel">
         <div className="selected-card">
-          <div className="selected-card-title">
-            <div>
-              <span>Selected part</span>
-              <strong>{selectedPart.device || selectedPart.model || "Part detail"}</strong>
+          <div className="part-card-header">
+            <div className="part-card-identity">
+              <span className="part-card-type">Selected part</span>
+              <h3 className="part-card-name">{selectedPart.device || selectedPart.model || "Part detail"}</h3>
             </div>
-            <div className="detail-actions">
-              <button type="button" onClick={onEditSelected} disabled={busy}>
-                <Pencil size={16} />
+            <div className="part-card-actions">
+              <button type="button" className="primary-button compact-accent" onClick={onEditSelected} disabled={busy}>
+                <Pencil size={15} />
                 Edit
               </button>
-              <button type="button" className="danger-action" onClick={onDelete} disabled={busy}>
-                <Trash2 size={16} />
+              <button type="button" className="ghost-button compact-accent danger-action" onClick={onDelete} disabled={busy}>
+                <Trash2 size={15} />
                 Delete
               </button>
             </div>
           </div>
+
+          <div className="part-hero-stats">
+            <div className="part-hero-qty">
+              <span>Quantity</span>
+              <strong>{selectedPart.quantity || "0"}</strong>
+            </div>
+            <div className={`part-hero-status ${selectedPart.statusOfParts.toLowerCase().includes("obsolete") ? "is-obsolete" : ""}`}>
+              <span>Status</span>
+              <strong>{selectedPart.statusOfParts || "-"}</strong>
+            </div>
+          </div>
+
           <dl className="detail-list">
             <Info label="Brand" value={selectedPart.brand} />
             <Info label="Model" value={selectedPart.model} />
-            <Info label="Quantity" value={selectedPart.quantity} />
-            <Info label="Status" value={selectedPart.statusOfParts || "-"} danger={selectedPart.statusOfParts.toLowerCase().includes("obsolete")} />
             <Info label="Software Support" value={selectedPart.softwareSupport || "-"} wide />
-            <div className="wide detail-section-label">Spare parts</div>
-            <Info label="MT Store" value={selectedPart.mtStore || "-"} />
-            <Info label="Second hand" value={selectedPart.secondHand || "-"} />
+            <div className="wide detail-section-label">
+              <PackagePlus size={13} />
+              Spare parts
+            </div>
+            <Info label="MT Store" value={selectedPart.mtStore || "-"} spare={!!selectedPart.mtStore && selectedPart.mtStore !== "-"} />
+            <Info label="Second hand" value={selectedPart.secondHand || "-"} spare={!!selectedPart.secondHand && selectedPart.secondHand !== "-"} />
           </dl>
         </div>
       </aside>
@@ -3192,9 +3205,10 @@ function DetailView({
   );
 }
 
-function Info({ label, value, wide, danger }: { label: string; value: string; wide?: boolean; danger?: boolean }) {
+function Info({ label, value, wide, danger, spare }: { label: string; value: string; wide?: boolean; danger?: boolean; spare?: boolean }) {
+  const cls = [wide ? "wide" : "", spare ? "spare-available" : ""].filter(Boolean).join(" ");
   return (
-    <div className={wide ? "wide" : ""}>
+    <div className={cls || undefined}>
       <dt>{label}</dt>
       <dd className={danger ? "danger-text" : ""}>{value}</dd>
     </div>
