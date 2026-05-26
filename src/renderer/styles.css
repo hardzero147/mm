@@ -105,7 +105,7 @@ button:disabled {
 .app-shell {
   height: 100vh;
   min-height: 0;
-  padding: 10px;
+  padding: 12px;
   overflow: hidden;
   background: linear-gradient(180deg, #1b1d23 0%, var(--frame) 46%, #15171b 100%);
 }
@@ -126,7 +126,7 @@ button:disabled {
   align-items: center;
   gap: 12px;
   min-width: 0;
-  padding: 7px 10px;
+  padding: 9px 12px;
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 8px;
   background: linear-gradient(180deg, rgba(48, 52, 60, 0.72), rgba(37, 40, 47, 0.72));
@@ -173,7 +173,7 @@ button:disabled {
 
 .topbar p {
   color: var(--faint);
-  font-size: 11px;
+  font-size: 12px;
   line-height: 1.2;
 }
 
@@ -491,7 +491,8 @@ button:disabled {
   width: 100%;
   height: 36px;
   min-height: unset;
-  padding: 0 26px 0 9px;
+  padding: 0 26px 0 10px;
+  font-size: 13px;
 }
 
 .command-bar .searchable-field {
@@ -547,7 +548,7 @@ legend,
 .field input,
 .field textarea {
   width: 100%;
-  min-height: 32px;
+  min-height: 34px;
   border-radius: 8px;
   border: 1px solid rgba(255, 255, 255, 0.105);
   background:
@@ -556,8 +557,8 @@ legend,
   color: var(--text);
   outline: 0;
   padding: 0 10px;
-  font-size: 12px;
-  font-weight: 650;
+  font-size: 13px;
+  font-weight: 600;
 }
 
 .field textarea {
@@ -1039,13 +1040,13 @@ legend,
 }
 
 .selection-toolbar button {
-  min-height: 28px;
+  min-height: 30px;
   border-radius: 8px;
   border: 1px solid var(--button-border);
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  padding: 0 9px;
+  padding: 0 10px;
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.085), rgba(255, 255, 255, 0.025)),
     rgba(255, 255, 255, 0.06);
@@ -1162,7 +1163,7 @@ legend,
 .machine-name-line strong {
   display: block;
   color: #ffffff;
-  font-size: 16px;
+  font-size: 17px;
   line-height: 1.06;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1172,17 +1173,17 @@ legend,
 .machine-name-line em {
   flex: 0 1 auto;
   min-width: 0;
-  min-height: 19px;
+  min-height: 21px;
   border-radius: 7px;
   display: inline-flex;
   align-items: center;
-  padding: 0 6px;
+  padding: 0 8px;
   color: #cfe7ff;
   background: rgba(255, 255, 255, 0.075);
   border: 1px solid rgba(255, 255, 255, 0.075);
-  font-size: 10px;
+  font-size: 11px;
   font-style: normal;
-  font-weight: 850;
+  font-weight: 750;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -1197,19 +1198,19 @@ legend,
 }
 
 .machine-overview-actions button {
-  min-height: 28px;
+  min-height: 32px;
   border-radius: 8px;
   border: 1px solid var(--button-border);
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  padding: 0 9px;
+  padding: 0 11px;
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.09), rgba(255, 255, 255, 0.025)),
     rgba(255, 255, 255, 0.06);
   color: #f0f5ff;
-  font-size: 11px;
-  font-weight: 750;
+  font-size: 12px;
+  font-weight: 700;
   box-shadow: var(--button-inset);
   transition:
     background 130ms var(--ease-out),
@@ -1264,19 +1265,19 @@ legend,
 }
 
 .machine-overview-grid span {
-  min-height: 20px;
+  min-height: 22px;
   min-width: 0;
   max-width: 100%;
   border-radius: 6px;
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  padding: 0 6px;
+  gap: 5px;
+  padding: 0 8px;
   background: rgba(255, 255, 255, 0.07);
   border: 1px solid rgba(255, 255, 255, 0.075);
   color: #e9f0fb;
-  font-size: 10px;
-  font-weight: 750;
+  font-size: 11px;
+  font-weight: 700;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -1284,12 +1285,12 @@ legend,
 
 .machine-overview-grid b {
   color: #b9c5d6;
-  font-size: 9px;
+  font-size: 10px;
 }
 
 .select-box {
-  width: 30px;
-  height: 30px;
+  width: 32px;
+  height: 32px;
   border: 1px solid var(--button-border);
   border-radius: 8px;
   background:
@@ -1387,7 +1388,7 @@ button:focus-visible {
 
 .machine-list {
   overflow: auto;
-  padding: 11px 11px 14px;
+  padding: 12px 12px 16px;
   contain: layout paint;
   scrollbar-gutter: stable;
 }
@@ -1401,23 +1402,23 @@ button:focus-visible {
   text-align: left;
   border: 1px solid rgba(255, 255, 255, 0.095);
   border-left: 4px solid transparent;
-  border-radius: 8px;
+  border-radius: 10px;
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.038), rgba(255, 255, 255, 0.008)),
     var(--row);
   color: var(--text);
-  padding: 13px 12px 13px 11px;
-  margin-bottom: 9px;
+  padding: 14px 14px 14px 12px;
+  margin-bottom: 10px;
   display: grid;
-  grid-template-columns: 32px minmax(0, 1fr);
+  grid-template-columns: 34px minmax(0, 1fr);
   align-items: flex-start;
-  gap: 10px;
+  gap: 11px;
   transition:
     background var(--t-fast) var(--ease-out),
     border-color var(--t-fast) var(--ease-out),
     box-shadow var(--t-fast) var(--ease-out);
   content-visibility: auto;
-  contain-intrinsic-size: 92px;
+  contain-intrinsic-size: 96px;
 }
 
 .machine-row:hover {
@@ -1485,7 +1486,7 @@ button:focus-visible {
 
 .machine-row-top strong {
   color: #ffffff;
-  font-size: 17px;
+  font-size: 18px;
   line-height: 1.18;
   margin-bottom: 5px;
   overflow: hidden;
@@ -1497,16 +1498,16 @@ button:focus-visible {
 .machine-meta,
 .machine-row-top em {
   color: var(--muted);
-  font-size: 11px;
+  font-size: 12px;
   font-style: normal;
 }
 
 .machine-row-top em {
   flex: 0 0 auto;
-  min-height: 24px;
+  min-height: 26px;
   display: inline-flex;
   align-items: center;
-  padding: 0 9px;
+  padding: 0 10px;
   border-radius: 999px;
   color: #d9e7ff;
   background: rgba(115, 148, 232, 0.14);
@@ -1526,10 +1527,10 @@ button:focus-visible {
   border-radius: 7px;
   background: rgba(255, 255, 255, 0.095);
   border: 1px solid rgba(255, 255, 255, 0.075);
-  min-height: 25px;
+  min-height: 26px;
   display: inline-flex;
   align-items: center;
-  padding: 0 9px;
+  padding: 0 10px;
   font-size: 12px;
   color: #d3def0;
 }
@@ -1667,13 +1668,13 @@ button:focus-visible {
 .part-stack {
   display: flex;
   flex-direction: column;
-  gap: 7px;
+  gap: 8px;
   flex: 1;
   min-height: 0;
   max-height: none;
   overflow-y: auto;
   overflow-x: hidden;
-  padding: 7px 6px 7px 7px;
+  padding: 8px 7px 8px 8px;
   border-radius: 8px;
   border: 1px solid rgba(255, 255, 255, 0.085);
   background:
@@ -1690,19 +1691,19 @@ button:focus-visible {
     var(--row);
   color: var(--text);
   border-radius: 8px;
-  min-height: 54px;
+  min-height: 58px;
   display: grid;
-  grid-template-columns: 46px minmax(0, 1fr);
+  grid-template-columns: 48px minmax(0, 1fr);
   align-items: center;
   gap: 6px;
-  padding: 5px 8px;
+  padding: 6px 10px 6px 8px;
   text-align: left;
   transition:
     background 150ms ease,
     border-color 150ms ease,
     box-shadow 150ms ease;
   content-visibility: auto;
-  contain-intrinsic-size: 64px;
+  contain-intrinsic-size: 68px;
 }
 
 .part-select {
@@ -1861,20 +1862,20 @@ button:focus-visible {
 }
 
 .cluster-action-button {
-  min-height: 27px;
+  min-height: 30px;
   border-radius: 8px;
   border: 1px solid var(--button-border);
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 5px;
-  padding: 0 8px;
+  padding: 0 10px;
   color: #f0f5ff;
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.085), rgba(255, 255, 255, 0.025)),
     rgba(255, 255, 255, 0.06);
-  font-size: 10px;
-  font-weight: 800;
+  font-size: 11px;
+  font-weight: 700;
   white-space: nowrap;
   box-shadow: var(--button-inset);
   transition:
@@ -1951,8 +1952,8 @@ button:focus-visible {
   align-items: center;
   gap: 6px;
   color: #d7e5f6;
-  font-size: 12px;
-  font-weight: 800;
+  font-size: 13px;
+  font-weight: 700;
 }
 
 .part-cluster-model-title svg {
@@ -1971,7 +1972,7 @@ button:focus-visible {
 .part-cluster-model-title strong {
   flex: 0 0 auto;
   color: #ffd28d;
-  font-size: 10px;
+  font-size: 11px;
 }
 
 .part-model-list {
@@ -1994,19 +1995,19 @@ button:focus-visible {
   gap: 6px;
   margin: 0 32px 0 32px;
   color: #8794a5;
-  font-size: 10px;
-  font-weight: 900;
+  font-size: 11px;
+  font-weight: 700;
   letter-spacing: 0;
   text-transform: uppercase;
 }
 
 .part-child-row {
   display: grid;
-  grid-template-columns: 28px minmax(0, 1fr) 28px;
+  grid-template-columns: 30px minmax(0, 1fr) 30px;
   align-items: center;
   gap: 4px;
-  min-height: 35px;
-  padding: 2px;
+  min-height: 38px;
+  padding: 3px;
   border-radius: 8px;
   border: 1px solid rgba(255, 255, 255, 0.08);
   background:
@@ -2080,46 +2081,46 @@ button:focus-visible {
   grid-column: 1;
   grid-row: 1;
   color: #f8fbff;
-  font-size: 11px;
-  line-height: 1.15;
+  font-size: 12px;
+  line-height: 1.2;
 }
 
 .part-child-content small {
   grid-column: 1;
   grid-row: 2;
   color: #8995a8;
-  font-size: 9px;
-  font-weight: 800;
-  line-height: 1.1;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1.2;
 }
 
 .part-child-content span {
   grid-column: 2;
   grid-row: 1 / span 2;
   color: var(--muted);
-  font-size: 10px;
+  font-size: 11px;
 }
 
 .part-child-content em {
   grid-column: 3;
   grid-row: 1 / span 2;
   justify-self: end;
-  min-height: 19px;
-  min-width: 30px;
+  min-height: 21px;
+  min-width: 32px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 0 5px;
+  padding: 0 6px;
   border-radius: 999px;
   color: #dce8f8;
   background: rgba(255, 255, 255, 0.07);
-  font-size: 10px;
-  font-weight: 900;
+  font-size: 11px;
+  font-weight: 800;
 }
 
 .part-child-edit {
-  width: 28px;
-  min-height: 28px;
+  width: 30px;
+  min-height: 30px;
   border-radius: 8px;
   border: 1px solid var(--button-border);
   display: inline-flex;
@@ -2187,7 +2188,7 @@ button:focus-visible {
 
 .part-content {
   min-width: 0;
-  min-height: 44px;
+  min-height: 46px;
   height: 100%;
   border: 0;
   background: transparent;
@@ -2231,6 +2232,7 @@ button:focus-visible {
 .part-content strong {
   color: #f8fbff;
   font-size: 14px;
+  font-weight: 700;
 }
 
 .selected-card {
@@ -2255,7 +2257,7 @@ button:focus-visible {
 .selected-card-title strong {
   display: block;
   margin-top: 2px;
-  font-size: 17px;
+  font-size: 18px;
   line-height: 1.14;
 }
 
@@ -2267,9 +2269,9 @@ button:focus-visible {
 }
 
 .detail-actions button {
-  min-height: 30px;
-  padding: 0 8px;
-  font-size: 12px;
+  min-height: 33px;
+  padding: 0 11px;
+  font-size: 13px;
 }
 
 .detail-actions .danger-action {
@@ -2297,7 +2299,7 @@ button:focus-visible {
   margin: 0;
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 7px;
+  gap: 8px;
 }
 
 .detail-list div {
@@ -2307,7 +2309,7 @@ button:focus-visible {
     linear-gradient(180deg, rgba(255, 255, 255, 0.064), rgba(255, 255, 255, 0.026)),
     rgba(18, 21, 27, 0.3);
   border: 1px solid rgba(255, 255, 255, 0.09);
-  padding: 9px;
+  padding: 10px 11px;
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.045),
     0 7px 16px rgba(0, 0, 0, 0.1);
@@ -2318,10 +2320,10 @@ button:focus-visible {
 }
 
 .detail-section-label {
-  padding: 6px 0 2px;
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.08em;
+  padding: 7px 0 2px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
   color: #aebbd0;
   border-top: 1px solid var(--border);
@@ -2335,17 +2337,17 @@ button:focus-visible {
 
 .detail-list dt {
   color: #aebbd0;
-  font-size: 10px;
-  margin-bottom: 4px;
-  font-weight: 800;
-  letter-spacing: 0.015em;
+  font-size: 11px;
+  margin-bottom: 5px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
   text-transform: uppercase;
 }
 
 .detail-list dd {
   color: var(--text);
-  font-size: 13px;
-  line-height: 1.28;
+  font-size: 14px;
+  line-height: 1.32;
   overflow-wrap: anywhere;
 }
 
@@ -2873,7 +2875,7 @@ legend {
 
 .import-status strong {
   margin-top: 4px;
-  font-size: 11px;
+  font-size: 12px;
   line-height: 1.15;
 }
 
@@ -3167,8 +3169,8 @@ legend {
   }
 
   .machine-row {
-    padding-top: 10px;
-    padding-bottom: 10px;
+    padding-top: 11px;
+    padding-bottom: 11px;
   }
 
 }
