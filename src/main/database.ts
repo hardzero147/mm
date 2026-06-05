@@ -68,13 +68,12 @@ const EXPORT_HEADERS = [
     "Spare parts",
     "",
     "Breakdown Recovery",
-    "",
-    "How to solution"
+    ""
   ],
-  ["", "", "", "", "", "", "", "", "", "", "", " MT store", "Second hand", "Action by Maker", "Action by MT", ""]
+  ["", "", "", "", "", "", "", "", "", "", "", " MT store", "Second hand", "Action by Maker", "Action by MT"]
 ] as const;
 
-const EXPORT_COLUMN_WIDTHS = [6.2, 16.6, 22.6, 21.1, 21.1, 21.1, 27.9, 53.9, 13.6, 28.4, 23.8, 19.4, 18.6, 22.6, 18.5, 37.4];
+const EXPORT_COLUMN_WIDTHS = [6.2, 16.6, 22.6, 21.1, 21.1, 21.1, 27.9, 53.9, 13.6, 28.4, 23.8, 19.4, 18.6, 22.6, 18.5];
 
 let sqlPromise: Promise<SqlJsStatic> | null = null;
 
@@ -109,6 +108,12 @@ function inferExportSheet(part: PartRecord): (typeof EXPORT_SHEETS)[number] | ty
   const fromSource = exportSheetFromSource(part.sourceSheet, part.location);
   if (fromSource) {
     return fromSource;
+  }
+
+  // Handle P100–P600 stored directly as plant value (from form dropdown)
+  const fromPlantAsSource = exportSheetFromSource(part.plant, part.location);
+  if (fromPlantAsSource) {
+    return fromPlantAsSource;
   }
 
   const code = normalizePlantCode(part.plant);
@@ -186,8 +191,7 @@ function applyExportWorksheetLayout(worksheet: ExcelJSNamespace.Worksheet, rowCo
     "J1:J2",
     "K1:K2",
     "L1:M1",
-    "N1:O1",
-    "P1:P2"
+    "N1:O1"
   ];
 
   EXPORT_COLUMN_WIDTHS.forEach((width, index) => {
@@ -216,7 +220,7 @@ function applyExportCellStyle(cell: ExcelJSNamespace.Cell, bold = false): void {
 
 function applyExportRowStyles(worksheet: ExcelJSNamespace.Worksheet, rowCount: number): void {
   for (let row = 0; row < rowCount; row += 1) {
-    for (let column = 0; column < 16; column += 1) {
+    for (let column = 0; column < 15; column += 1) {
       applyExportCellStyle(worksheet.getCell(row + 1, column + 1), row < 2);
     }
   }
@@ -373,6 +377,12 @@ function getDefaultDbPath(): string {
   return path.join(app.getPath("userData"), "electrical-parts.sqlite");
 }
 
+function removeFileIfExists(filePath: string): void {
+  if (fs.existsSync(filePath)) {
+    fs.rmSync(filePath, { force: true });
+  }
+}
+
 export class PartsDatabase {
   private db: Database | null = null;
   private dbPath = getDefaultDbPath();
@@ -386,6 +396,9 @@ export class PartsDatabase {
     fs.mkdirSync(path.dirname(this.dbPath), { recursive: true });
 
     const SQL = await getSql();
+    this.db?.close();
+    this.db = null;
+
     if (fs.existsSync(this.dbPath)) {
       const file = fs.readFileSync(this.dbPath);
       this.db = new SQL.Database(file);
@@ -409,7 +422,9 @@ export class PartsDatabase {
   private save(): void {
     const db = this.requireDb();
     const data = db.export();
-    fs.writeFileSync(this.dbPath, Buffer.from(data));
+    const tempPath = `${this.dbPath}.tmp`;
+    fs.writeFileSync(tempPath, Buffer.from(data));
+    fs.renameSync(tempPath, this.dbPath);
   }
 
   private migrate(): void {
@@ -488,19 +503,20 @@ export class PartsDatabase {
   }
 
   getAllParts(): PartRecord[] {
-    const db = this.requireDb();
-    const result = db.exec(`
+    const statement = this.requireDb().prepare(`
       SELECT * FROM parts
       ORDER BY source_sheet, plant, location, machine_name, machine_code, id
     `);
-
-    if (!result.length) {
-      return [];
+    try {
+      const columnIndex = Object.fromEntries(statement.getColumnNames().map((column, index) => [column, index]));
+      const parts: PartRecord[] = [];
+      while (statement.step()) {
+        parts.push(rowValuesToPart(statement.get(), columnIndex));
+      }
+      return parts;
+    } finally {
+      statement.free();
     }
-
-    const { columns, values } = result[0];
-    const columnIndex = Object.fromEntries(columns.map((column, index) => [column, index]));
-    return values.map((row) => rowValuesToPart(row, columnIndex));
   }
 
   getPartById(id: number): PartRecord | null {
@@ -836,8 +852,7 @@ export class PartsDatabase {
             excelValue(part.mtStore),
             excelValue(part.secondHand),
             excelValue(part.actionByMaker),
-            excelValue(part.actionByMt),
-            excelValue(part.howToSolution)
+            excelValue(part.actionByMt)
           ]);
         });
 
@@ -868,8 +883,54 @@ export class PartsDatabase {
     if (!fs.existsSync(filePath)) {
       throw new Error("Backup file not found.");
     }
-    fs.copyFileSync(filePath, this.dbPath);
-    await this.initialize(this.dbPath);
+    await this.validateBackupDatabase(filePath);
+
+    const rollbackPath = `${this.dbPath}.restore-${Date.now()}.bak`;
+    const hadCurrentDatabase = fs.existsSync(this.dbPath);
+
+    if (hadCurrentDatabase) {
+      fs.copyFileSync(this.dbPath, rollbackPath);
+    }
+
+    try {
+      fs.copyFileSync(filePath, this.dbPath);
+      await this.initialize(this.dbPath);
+    } catch (error) {
+      if (hadCurrentDatabase && fs.existsSync(rollbackPath)) {
+        fs.copyFileSync(rollbackPath, this.dbPath);
+        await this.initialize(this.dbPath);
+      } else {
+        removeFileIfExists(this.dbPath);
+        this.db = null;
+      }
+      throw error;
+    } finally {
+      removeFileIfExists(rollbackPath);
+    }
+  }
+
+  private async validateBackupDatabase(filePath: string): Promise<void> {
+    const SQL = await getSql();
+    let candidate: Database | null = null;
+
+    try {
+      candidate = new SQL.Database(fs.readFileSync(filePath));
+      const integrity = candidate.exec("PRAGMA integrity_check");
+      const integrityStatus = clean(integrity[0]?.values[0]?.[0]).toLowerCase();
+      if (integrityStatus !== "ok") {
+        throw new Error("Backup integrity check failed.");
+      }
+
+      const tables = candidate.exec("SELECT name FROM sqlite_master WHERE type = 'table' AND name IN ('parts', 'import_runs', 'reference_options')");
+      const tableNames = new Set((tables[0]?.values ?? []).map((row) => clean(row[0])));
+      if (!tableNames.has("parts") || !tableNames.has("import_runs") || !tableNames.has("reference_options")) {
+        throw new Error("Backup schema is incomplete.");
+      }
+    } catch {
+      throw new Error("Selected backup is not a valid Parts Manager database.");
+    } finally {
+      candidate?.close();
+    }
   }
 
   private compareImport(records: PartInput[]): Pick<ImportPreview, "newCount" | "updatedCount" | "unchangedCount"> {
@@ -1024,13 +1085,23 @@ export class PartsDatabase {
   }
 
   private calculateStats(parts: PartRecord[]): AppStats {
-    const machineKeys = new Set<string>();
     let obsoleteParts = 0;
     let mtStoreParts = 0;
     let secondHandParts = 0;
+    let machines = 0;
+    let previousPart: PartRecord | null = null;
 
     for (const part of parts) {
-      machineKeys.add([part.sourceSheet, part.plant, part.location, part.machineCode, part.machineName].join("|"));
+      if (
+        !previousPart ||
+        previousPart.sourceSheet !== part.sourceSheet ||
+        previousPart.plant !== part.plant ||
+        previousPart.location !== part.location ||
+        previousPart.machineCode !== part.machineCode ||
+        previousPart.machineName !== part.machineName
+      ) {
+        machines += 1;
+      }
       if (part.statusOfParts.toLowerCase().includes("obsolete")) {
         obsoleteParts += 1;
       }
@@ -1040,6 +1111,7 @@ export class PartsDatabase {
       if (hasSpareValue(part.secondHand)) {
         secondHandParts += 1;
       }
+      previousPart = part;
     }
 
     return {
@@ -1047,7 +1119,7 @@ export class PartsDatabase {
       obsoleteParts,
       mtStoreParts,
       secondHandParts,
-      machines: machineKeys.size
+      machines
     };
   }
 

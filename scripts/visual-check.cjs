@@ -62,28 +62,29 @@ app.whenReady().then(async () => {
         setter.call(input, value);
         input.dispatchEvent(new Event('input', { bubbles: true }));
       };
+      const waitDebounce = () => new Promise((resolve) => setTimeout(resolve, 350));
       const input = document.querySelector('.global-search input');
       setReactInputValue(input, 'TOYO');
-      await waitFrame();
+      await waitDebounce();
       const machineSearchSummary = document.querySelector('.result-title strong')?.textContent ?? '';
       const machineFilterSummary = document.querySelector('.result-title small')?.textContent ?? '';
       setReactInputValue(input, 'OMRON');
-      await waitFrame();
+      await waitDebounce();
       const brandSearchSummary = document.querySelector('.result-title strong')?.textContent ?? '';
       setReactInputValue(input, 'PFXGP4410TAD');
-      await waitFrame();
+      await waitDebounce();
       const modelSearchSummary = document.querySelector('.result-title strong')?.textContent ?? '';
       setReactInputValue(input, 'LD PAKING');
-      await waitFrame();
+      await waitDebounce();
       const locationSearchSummary = document.querySelector('.result-title strong')?.textContent ?? '';
       setReactInputValue(input, 'proface');
-      await waitFrame();
+      await waitDebounce();
       const compactBrandSearchSummary = document.querySelector('.result-title strong')?.textContent ?? '';
       setReactInputValue(input, 'P200');
-      await waitFrame();
+      await waitDebounce();
       const plantGroupSearchSummary = document.querySelector('.result-title strong')?.textContent ?? '';
       document.querySelector('.reset-button')?.click();
-      await waitFrame();
+      await waitDebounce();
       return {
         machineSearchSummary,
         machineFilterSummary,
@@ -176,7 +177,7 @@ app.whenReady().then(async () => {
         p200Summary,
         hasPlantDeviceBrand: JSON.stringify(labels) === JSON.stringify(['Plant', 'Device', 'Brand']),
         legacyFilterPanelRemoved: !document.querySelector('.filter-panel'),
-        toolbarHasBackupRestore: toolbarActions.some((label) => label.includes('Backup')) && toolbarActions.some((label) => label.includes('Restore'))
+        toolbarHasImportExport: toolbarActions.some((label) => label.includes('Import')) && toolbarActions.some((label) => label.includes('Export'))
       };
     })()
   `);
@@ -291,7 +292,7 @@ app.whenReady().then(async () => {
       await waitFrame();
       return {
         selectedMachine: document.querySelector('.machine-name-line strong')?.textContent ?? '',
-        selectedPart: document.querySelector('.selected-card-title strong')?.textContent ?? '',
+        selectedPart: document.querySelector('.part-card-name')?.textContent ?? '',
         partSectionHeading: document.querySelector('.part-section-heading strong')?.textContent ?? ''
       };
     })()
@@ -351,9 +352,9 @@ app.whenReady().then(async () => {
     !result.hasCommandBar ||
     result.summaryLabels.length !== 4 ||
     result.summaryLabels.some((label) => label.includes("Spare parts")) ||
-    !result.machineMetaText.some((text) => text === "Plant P200 / 1200") ||
-    !result.machineMetaText.some((text) => text === "Plant P400 / 400") ||
-    result.machineMetaText.some((text) => text.includes("Sheet") || text.includes("PK") || text.includes("LD PAKING")) ||
+    !result.machineMetaText.some((text) => text.includes("P200 / 1200")) ||
+    !result.machineMetaText.some((text) => text.includes("P400 / 400")) ||
+    result.machineMetaText.some((text) => text.includes("Sheet")) ||
     !result.hasSearch ||
     !result.hasDetail ||
     !result.hasPartsPanel ||
@@ -365,13 +366,13 @@ app.whenReady().then(async () => {
   }
   if (
     result.searchPlaceholder !== "ค้นหา: เครื่อง / Code / Plant / Location / Device / Brand / Model" ||
-    searchScopeResult.machineSearchSummary !== "1 groups / 3 parts" ||
+    searchScopeResult.machineSearchSummary !== "1 machines / 3 parts" ||
     searchScopeResult.machineFilterSummary !== '"TOYO"' ||
-    searchScopeResult.brandSearchSummary !== "1 groups / 2 parts" ||
-    searchScopeResult.modelSearchSummary !== "1 groups / 1 parts" ||
-    searchScopeResult.locationSearchSummary !== "1 groups / 1 parts" ||
-    searchScopeResult.compactBrandSearchSummary !== "2 groups / 2 parts" ||
-    searchScopeResult.plantGroupSearchSummary !== "1 groups / 3 parts"
+    searchScopeResult.brandSearchSummary !== "1 machines / 2 parts" ||
+    searchScopeResult.modelSearchSummary !== "1 machines / 1 parts" ||
+    searchScopeResult.locationSearchSummary !== "1 machines / 1 parts" ||
+    searchScopeResult.compactBrandSearchSummary !== "2 machines / 2 parts" ||
+    searchScopeResult.plantGroupSearchSummary !== "1 machines / 3 parts"
   ) {
     throw new Error(`Search scope failed smoke checks: ${JSON.stringify({ result, searchScopeResult })}`);
   }
@@ -387,33 +388,33 @@ app.whenReady().then(async () => {
     !filterResult.plcOptionSelected ||
     !filterResult.profaceOptionSelected ||
     !filterResult.plantOptionSelected ||
-    filterResult.profaceSummary !== "2 groups / 2 parts" ||
-    filterResult.plcSummary !== "1 groups / 2 parts" ||
-    filterResult.p200Summary !== "1 groups / 3 parts" ||
-    !filterResult.toolbarHasBackupRestore
+    filterResult.profaceSummary !== "2 machines / 2 parts" ||
+    filterResult.plcSummary !== "1 machines / 2 parts" ||
+    filterResult.p200Summary !== "1 machines / 3 parts" ||
+    !filterResult.toolbarHasImportExport
   ) {
     throw new Error(`Filter controls failed smoke checks: ${JSON.stringify(filterResult)}`);
   }
 
   if (
     !quickViewResult.mtStoreClicked ||
-    quickViewResult.mtStoreSummary !== "2 groups / 2 parts" ||
+    quickViewResult.mtStoreSummary !== "2 machines / 2 parts" ||
     quickViewResult.mtStoreFilterSummary !== "MT store" ||
     !quickViewResult.mtStoreActive ||
     !quickViewResult.mtStoreToggleOffClicked ||
-    quickViewResult.mtStoreToggleOffSummary !== "2 groups / 4 parts" ||
+    quickViewResult.mtStoreToggleOffSummary !== "2 machines / 4 parts" ||
     quickViewResult.mtStoreToggleOffFilterSummary !== "Showing all machines" ||
     quickViewResult.mtStoreToggleOffActive ||
     !quickViewResult.secondHandClicked ||
-    quickViewResult.secondHandSummary !== "1 groups / 1 parts" ||
+    quickViewResult.secondHandSummary !== "1 machines / 1 parts" ||
     quickViewResult.secondHandFilterSummary !== "Second hand" ||
     quickViewResult.secondHandEmpty ||
     !quickViewResult.secondHandToggleOffClicked ||
-    quickViewResult.secondHandToggleOffSummary !== "2 groups / 4 parts" ||
+    quickViewResult.secondHandToggleOffSummary !== "2 machines / 4 parts" ||
     quickViewResult.secondHandToggleOffFilterSummary !== "Showing all machines" ||
     quickViewResult.sparePartsVisible ||
     !quickViewResult.totalClicked ||
-    quickViewResult.totalSummary !== "2 groups / 4 parts" ||
+    quickViewResult.totalSummary !== "2 machines / 4 parts" ||
     quickViewResult.totalFilterSummary !== "Showing all machines"
   ) {
     throw new Error(`Summary quick views failed smoke checks: ${JSON.stringify(quickViewResult)}`);

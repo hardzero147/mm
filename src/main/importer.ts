@@ -3,6 +3,7 @@ import path from "node:path";
 import type { PartInput, ReferenceOptions } from "../shared/types";
 
 const MAIN_SHEETS = ["P100", "P200", "P300 BC", "P300 NOC", "P400", "P600"];
+const SUPPORTED_WORKBOOK_EXTENSIONS = new Set([".xlsx", ".xls"]);
 
 const HEADERS = [
   "no",
@@ -83,8 +84,12 @@ function hasPartIdentity(row: RawRow): boolean {
 }
 
 export async function parseWorkbook(filePath: string): Promise<ParsedWorkbook> {
+  if (!SUPPORTED_WORKBOOK_EXTENSIONS.has(path.extname(filePath).toLowerCase())) {
+    throw new Error("Unsupported Excel workbook extension.");
+  }
+
   if (!fs.existsSync(filePath)) {
-    throw new Error(`Excel file not found: ${filePath}`);
+    throw new Error("Excel file not found.");
   }
 
   const ExcelJS = await import("exceljs");

@@ -9,9 +9,7 @@ const api: ElectricalPartsApi = {
   saveParts: (parts: PartInput[]) => ipcRenderer.invoke("parts:saveParts", parts),
   deletePart: (id: number) => ipcRenderer.invoke("parts:deletePart", id),
   deleteParts: (ids: number[]) => ipcRenderer.invoke("parts:deleteParts", ids),
-  exportData: () => ipcRenderer.invoke("parts:exportData"),
-  backupDatabase: () => ipcRenderer.invoke("parts:backupDatabase"),
-  restoreDatabase: () => ipcRenderer.invoke("parts:restoreDatabase")
+  exportData: () => ipcRenderer.invoke("parts:exportData")
 };
 
 contextBridge.exposeInMainWorld("electricalAPI", api);

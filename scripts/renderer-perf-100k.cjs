@@ -1,4 +1,5 @@
 const rowCount = Number(process.argv[2] ?? 100000);
+const partsPerMachine = Math.max(1, Number(process.argv[3] ?? 1));
 
 const sourceSheets = ["P100", "P200", "P300 BC", "P300 NOC", "P400", "P600"];
 const plants = ["1100", "1200", "1300", "1300", "400", "600"];
@@ -60,12 +61,8 @@ function partSearchText(part) {
 }
 
 function getIndexedSearch(indexed) {
-  if (!indexed.search) {
-    const text = partSearchText(indexed.part);
-    indexed.search = {
-      lower: text.toLowerCase(),
-      compact: compactSearchText(text)
-    };
+  if (indexed.search === undefined) {
+    indexed.search = compactSearchText(partSearchText(indexed.part));
   }
   return indexed.search;
 }
@@ -73,11 +70,12 @@ function getIndexedSearch(indexed) {
 function createParts(count) {
   const now = new Date().toISOString();
   return Array.from({ length: count }, (_, index) => {
-    const familyIndex = index % sourceSheets.length;
+    const machineIndex = Math.floor(index / partsPerMachine);
+    const familyIndex = machineIndex % sourceSheets.length;
     const device = devices[index % devices.length];
     const brand = brands[(index * 2) % brands.length];
-    const machineCode = `${sourceSheets[familyIndex].replace(/\s+/g, "")}-${String(index + 1).padStart(6, "0")}`;
-    const machineName = `PERF MACHINE ${String(index + 1).padStart(6, "0")}`;
+    const machineCode = `${sourceSheets[familyIndex].replace(/\s+/g, "")}-${String(machineIndex + 1).padStart(6, "0")}`;
+    const machineName = `PERF MACHINE ${String(machineIndex + 1).padStart(6, "0")}`;
     const model = `${brand.replace(/[^A-Z0-9]/gi, "")}-${String(index + 1).padStart(6, "0")}`;
 
     return {
@@ -136,7 +134,6 @@ function groupParts(parts) {
 
 function filterParts(indexedParts, query, device = "", brand = "", status = "all", spare = "all") {
   const raw = query.trim();
-  const lower = raw.toLowerCase();
   const compact = compactSearchText(raw);
   const nextParts = [];
   for (const indexed of indexedParts) {
@@ -147,7 +144,7 @@ function filterParts(indexedParts, query, device = "", brand = "", status = "all
     if (spare === "secondHand" && !indexed.isSecondHand) continue;
     if (raw) {
       const search = getIndexedSearch(indexed);
-      if (!search.lower.includes(lower) && !search.compact.includes(compact)) continue;
+      if (!search.includes(compact)) continue;
     }
     nextParts.push(indexed.part);
   }
@@ -185,11 +182,21 @@ const mtStoreMs = elapsedMs(start);
 start = process.hrtime.bigint();
 const selectedIds = new Set(parts.map((part) => part.id));
 const selectAllIdsMs = elapsedMs(start);
+const expectedGroups = Math.ceil(rowCount / partsPerMachine);
+
+if (allGroups.length !== expectedGroups) {
+  throw new Error(`Expected ${expectedGroups} groups, got ${allGroups.length}`);
+}
+if (selectedIds.size !== rowCount) {
+  throw new Error(`Expected ${rowCount} selected IDs, got ${selectedIds.size}`);
+}
 
 console.log(
   JSON.stringify(
     {
       rowCount,
+      partsPerMachine,
+      expectedGroups,
       createRowsMs,
       indexRowsMs,
       groupAllMs,

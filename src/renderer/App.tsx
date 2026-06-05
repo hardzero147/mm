@@ -1,11 +1,9 @@
 import {
-  ArchiveRestore,
   Boxes,
   CheckCircle2,
   ChevronDown,
   CircuitBoard,
   Cpu,
-  DatabaseBackup,
   FileDown,
   FileSpreadsheet,
   HelpCircle,
@@ -34,7 +32,7 @@ declare global {
     };
   }
 }
-import { useCallback, useDeferredValue, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { memo, useCallback, useDeferredValue, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import type { MutableRefObject, ReactNode, UIEvent } from "react";
 import type {
   ApiResponse,
@@ -77,10 +75,7 @@ type IndexedPart = {
   statusText: string;
   inMtStore: boolean;
   isSecondHand: boolean;
-  search?: {
-    lower: string;
-    compact: string;
-  };
+  search?: string;
 };
 
 type VirtualItem<T> = {
@@ -107,7 +102,7 @@ type PartClusterBuilder = {
   quantityTotal: number;
 };
 
-const MACHINE_ROW_ESTIMATE = 140;
+const MACHINE_ROW_ESTIMATE = 112;
 const PART_ROW_ESTIMATE = 58;
 const VIRTUAL_OVERSCAN = 8;
 
@@ -134,12 +129,12 @@ const plantFilterOptions = ["P100", "P200", "P300 BC", "P300 NOC", "P400", "P600
 const sourceSheetFormOptions = ["Manual", ...plantFilterOptions];
 
 const plantCodeOptions = [
-  { value: "1100", label: "1100 - P100" },
-  { value: "1200", label: "1200 - P200" },
-  { value: "1300", label: "1300 - P300 BC" },
-  { value: "NOC", label: "NOC - P300 NOC" },
-  { value: "400", label: "400 - P400" },
-  { value: "P600", label: "P600 - P600" }
+  { value: "P100", label: "P100" },
+  { value: "P200", label: "P200" },
+  { value: "P300 BC", label: "P300 BC" },
+  { value: "P300 NOC", label: "P300 NOC" },
+  { value: "P400", label: "P400" },
+  { value: "P600", label: "P600" }
 ] as const;
 
 const plantCodeOptionValues = plantCodeOptions.map((option) => option.value);
@@ -310,7 +305,7 @@ const emptyPart: PartInput = {
   secondHand: "",
   actionByMaker: "",
   actionByMt: "",
-  howToSolution: ""
+  howToSolution: ""  // kept for DB compat; not shown in form
 };
 
 const fieldGroups: Array<{
@@ -322,8 +317,7 @@ const fieldGroups: Array<{
     section: "machine",
     title: "Machine / เครื่อง",
     fields: [
-      { key: "sourceSheet", label: "Plant Group / กลุ่ม Plant" },
-      { key: "plant", label: "Plant Code / รหัส Plant", placeholder: "เลือก Plant" },
+      { key: "plant", label: "Plant", placeholder: "เลือก Plant" },
       { key: "location", label: "Location / พื้นที่" },
       { key: "machineCode", label: "Machine Code / รหัสเครื่อง" },
       { key: "machineName", label: "Machine Name / ชื่อเครื่อง" }
@@ -348,8 +342,7 @@ const fieldGroups: Array<{
       { key: "mtStore", label: "MT Store" },
       { key: "secondHand", label: "Second hand" },
       { key: "actionByMaker", label: "Action by Maker" },
-      { key: "actionByMt", label: "Action by MT" },
-      { key: "howToSolution", label: "How to solution / วิธีแก้" }
+      { key: "actionByMt", label: "Action by MT" }
     ]
   }
 ];
@@ -653,9 +646,7 @@ function createMockApi(): ElectricalPartsApi {
       replaceMockStore(getMockStore().filter((part) => !selectedIds.has(part.id)));
       return { ok: true, data: { ids } };
     },
-    exportData: async () => ({ ok: true, data: { canceled: false, filePath: "Browser preview export.xlsx" } }),
-    backupDatabase: async () => ({ ok: true, data: { canceled: false, filePath: "Browser preview backup.sqlite" } }),
-    restoreDatabase: async () => ({ ok: true, data: { canceled: false, filePath: "Browser preview backup.sqlite" } })
+    exportData: async () => ({ ok: true, data: { canceled: false, filePath: "Browser preview export.xlsx" } })
   };
 }
 
@@ -699,12 +690,8 @@ const brandAliasKeys = brandAliases.map((group) => ({
   aliases: group.aliases.map(filterKey)
 }));
 
-function compactLowerSearchText(value: string): string {
-  return value.replace(/[\s\-_/.:|()[\]]+/g, "");
-}
-
 function compactSearchText(value: string): string {
-  return compactLowerSearchText(value.toLowerCase());
+  return value.toLowerCase().replace(/[\s\-_/.:|()[\]]+/g, "");
 }
 
 function deviceFilterValue(value: string): string {
@@ -854,8 +841,12 @@ function inferPlantGroup(sourceSheet: string, plant: string): string {
 }
 
 function inferSourceSheetFromPlant(plant: string, location = ""): string {
-  if (normalizedPlantCode(plant) === "NOC") {
+  const normalized = normalizedPlantCode(plant);
+  if (normalized === "NOC" || (normalized.includes("P300") && normalized.includes("NOC"))) {
     return "P300 NOC";
+  }
+  if (normalized.includes("P300") && normalized.includes("BC")) {
+    return "P300 BC";
   }
 
   const group = plantGroupFromCode(plant);
@@ -1072,10 +1063,10 @@ function removeParts(snapshot: AppDataSnapshot, ids: Set<number>): AppDataSnapsh
   );
 }
 
-function getIndexedSearch(indexed: IndexedPart): { lower: string; compact: string } {
-  if (!indexed.search) {
+function getIndexedSearch(indexed: IndexedPart): string {
+  if (indexed.search === undefined) {
     const part = indexed.part;
-    const text = [
+    indexed.search = compactSearchText([
       part.sourceSheet,
       inferPlantGroup(part.sourceSheet, part.plant),
       part.plant,
@@ -1095,12 +1086,7 @@ function getIndexedSearch(indexed: IndexedPart): { lower: string; compact: strin
       part.actionByMaker,
       part.actionByMt,
       part.howToSolution
-    ].join(" ");
-    const lower = text.toLowerCase();
-    indexed.search = {
-      lower,
-      compact: compactLowerSearchText(lower)
-    };
+    ].join(" "));
   }
 
   return indexed.search;
@@ -1202,7 +1188,7 @@ function formatDate(value?: string): string {
 
 type Theme = "dark" | "light";
 
-function useTheme(): [Theme, () => void] {
+function useTheme(): [Theme, (e: React.MouseEvent<HTMLButtonElement>) => void] {
   const [theme, setTheme] = useState<Theme>(() => {
     try {
       const saved = localStorage.getItem("pm-theme");
@@ -1217,11 +1203,35 @@ function useTheme(): [Theme, () => void] {
     try { localStorage.setItem("pm-theme", theme); } catch {}
   }, [theme]);
 
-  const toggleTheme = useCallback(() => {
-    document.documentElement.classList.add("theme-anim");
-    setTheme((t) => (t === "dark" ? "light" : "dark"));
-    window.setTimeout(() => document.documentElement.classList.remove("theme-anim"), 450);
-  }, []);
+  const themeTransitioning = useRef(false);
+
+  const toggleTheme = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
+    if (themeTransitioning.current) return;
+
+    const btn = e.currentTarget;
+    const rect = btn.getBoundingClientRect();
+    const x = rect.left + rect.width / 2;
+    const y = rect.top + rect.height / 2;
+    const root = document.documentElement;
+    root.style.setProperty("--theme-origin-x", `${x}px`);
+    root.style.setProperty("--theme-origin-y", `${y}px`);
+
+    const next: Theme = theme === "dark" ? "light" : "dark";
+
+    if (typeof (document as any).startViewTransition === "function") {
+      themeTransitioning.current = true;
+      const vt = (document as any).startViewTransition(() => {
+        root.setAttribute("data-theme", next);
+        try { localStorage.setItem("pm-theme", next); } catch {}
+      });
+      setTheme(next);
+      vt.finished.finally(() => { themeTransitioning.current = false; });
+    } else {
+      root.classList.add("theme-anim");
+      setTheme(next);
+      window.setTimeout(() => root.classList.remove("theme-anim"), 500);
+    }
+  }, [theme]);
 
   return [theme, toggleTheme];
 }
@@ -1315,7 +1325,6 @@ export default function App() {
     const raw = deferredQuery.trim();
     return {
       raw,
-      lower: raw.toLowerCase(),
       compact: compactSearchText(raw)
     };
   }, [deferredQuery]);
@@ -1338,7 +1347,7 @@ export default function App() {
       if (!matchesSpareFilter(indexed.inMtStore, indexed.isSecondHand, filters.spare)) continue;
       if (normalizedQuery.raw) {
         const search = getIndexedSearch(indexed);
-        if (!search.lower.includes(normalizedQuery.lower) && !search.compact.includes(normalizedQuery.compact)) {
+        if (!search.includes(normalizedQuery.compact)) {
           continue;
         }
       }
@@ -1350,7 +1359,6 @@ export default function App() {
   }, [filters.brand, filters.device, filters.plant, filters.spare, filters.status, indexedParts, normalizedQuery]);
 
   const groups = useMemo(() => groupParts(filteredParts), [filteredParts]);
-  const visiblePartIds = useMemo(() => filteredParts.map((part) => part.id), [filteredParts]);
   const selectedVisibleCount = useMemo(
     () => {
       if (!selectedPartIds.size) {
@@ -1358,16 +1366,16 @@ export default function App() {
       }
 
       let count = 0;
-      for (const id of visiblePartIds) {
-        if (selectedPartIds.has(id)) {
+      for (const part of filteredParts) {
+        if (selectedPartIds.has(part.id)) {
           count += 1;
         }
       }
       return count;
     },
-    [selectedPartIds, visiblePartIds]
+    [filteredParts, selectedPartIds]
   );
-  const allVisibleSelected = visiblePartIds.length > 0 && selectedVisibleCount === visiblePartIds.length;
+  const allVisibleSelected = filteredParts.length > 0 && selectedVisibleCount === filteredParts.length;
   const activeFilterCount = [
     filters.query.trim() ? 1 : 0,
     filters.plant.length ? 1 : 0,
@@ -1422,9 +1430,16 @@ export default function App() {
         return current;
       }
 
-      const availableIds = new Set(parts.map((part) => part.id));
-      const next = new Set(Array.from(current).filter((id) => availableIds.has(id)));
-      return next.size === current.size ? current : next;
+      const next = new Set<number>();
+      for (const part of parts) {
+        if (current.has(part.id)) {
+          next.add(part.id);
+          if (next.size === current.size) {
+            return current;
+          }
+        }
+      }
+      return next;
     });
   }, [parts]);
 
@@ -1539,6 +1554,24 @@ export default function App() {
       showToast("Deleted", "success");
     });
 
+  const deletePart = (part: PartRecord) =>
+    handleAction("delete-part", async () => {
+      const confirmed = window.confirm(`Delete ${part.device || part.model || "part"}?`);
+      if (!confirmed) return;
+      unwrap(await api.deletePart(part.id));
+      setSnapshot((current) => (current ? removeParts(current, new Set([part.id])) : current));
+      setSelectedPartIds((current) => {
+        const next = new Set(current);
+        next.delete(part.id);
+        return next;
+      });
+      if (selectedPartId === part.id) {
+        setSelectedPartId(null);
+        clearEditing();
+      }
+      showToast("Deleted", "success");
+    });
+
   const deleteSelectedParts = () =>
     handleAction("delete-selected", async () => {
       const ids = Array.from(selectedPartIds);
@@ -1611,23 +1644,6 @@ export default function App() {
       }
     });
 
-  const backup = () =>
-    handleAction("backup", async () => {
-      const result = unwrap(await api.backupDatabase());
-      if (!result.canceled) {
-        showToast("Backup saved", "success");
-      }
-    });
-
-  const restore = () =>
-    handleAction("restore", async () => {
-      const result = unwrap(await api.restoreDatabase());
-      if (!result.canceled) {
-        await refresh();
-        showToast("Database restored", "success");
-      }
-    });
-
   const startAddMachine = () => {
     setEditingMode("add-machine");
     setEditingTargetIds([]);
@@ -1680,8 +1696,7 @@ export default function App() {
       mtStore: "",
       secondHand: "",
       actionByMaker: "",
-      actionByMt: "",
-      howToSolution: ""
+      actionByMt: ""
     });
   };
 
@@ -1694,6 +1709,38 @@ export default function App() {
     setEditingTargetIds(selectedGroup.parts.map((part) => part.id));
     setEditingPart(asPartInput(selectedGroup.parts[0]));
   };
+
+  const editMachineGroup = (group: MachineGroup) => {
+    if (!group.parts.length) return;
+    setSelectedGroupKey(group.key);
+    setSelectedPartId(group.parts[0].id);
+    clearEditing();
+    setEditingMode("edit-machine");
+    setEditingTargetIds(group.parts.map((part) => part.id));
+    setEditingPart(asPartInput(group.parts[0]));
+  };
+
+  const deleteMachineGroup = (group: MachineGroup) =>
+    handleAction("delete-machine", async () => {
+      const confirmed = window.confirm(
+        `Delete machine ${group.machineName || group.machineCode || "machine"} and ${group.parts.length} part${group.parts.length > 1 ? "s" : ""}?`
+      );
+      if (!confirmed) return;
+      const ids = group.parts.map((p) => p.id);
+      unwrap(await api.deleteParts(ids));
+      setSnapshot((current) => (current ? removeParts(current, new Set(ids)) : current));
+      setSelectedPartIds((current) => {
+        const next = new Set(current);
+        ids.forEach((id) => next.delete(id));
+        return next;
+      });
+      if (selectedGroupKey === group.key) {
+        setSelectedGroupKey("");
+        setSelectedPartId(null);
+        clearEditing();
+      }
+      showToast("Machine deleted", "success");
+    });
 
   const startEditPartGroup = (groupParts: PartRecord[]) => {
     const [firstPart] = groupParts;
@@ -1799,12 +1846,12 @@ export default function App() {
       const next = new Set(current);
 
       if (allVisibleSelected) {
-        for (const id of visiblePartIds) {
-          next.delete(id);
+        for (const part of filteredParts) {
+          next.delete(part.id);
         }
       } else {
-        for (const id of visiblePartIds) {
-          next.add(id);
+        for (const part of filteredParts) {
+          next.add(part.id);
         }
       }
 
@@ -1822,8 +1869,6 @@ export default function App() {
   const handlersRef = useRef({
     chooseImport,
     exportData,
-    backup,
-    restore,
     startAddMachine,
     startEditPart,
     deleteSelectedPart,
@@ -1843,8 +1888,6 @@ export default function App() {
     handlersRef.current = {
       chooseImport,
       exportData,
-      backup,
-      restore,
       startAddMachine,
       startEditPart,
       deleteSelectedPart,
@@ -1956,20 +1999,6 @@ export default function App() {
         return;
       }
 
-      // Ctrl+Shift+B → Backup
-      if (event.ctrlKey && event.shiftKey && event.key === "B") {
-        event.preventDefault();
-        h.backup();
-        return;
-      }
-
-      // Ctrl+Shift+R → Restore
-      if (event.ctrlKey && event.shiftKey && event.key === "R") {
-        event.preventDefault();
-        h.restore();
-        return;
-      }
-
       // Ctrl+I → Import
       if (event.ctrlKey && !event.shiftKey && event.key === "i") {
         event.preventDefault();
@@ -1989,8 +2018,6 @@ export default function App() {
       const h = handlersRef.current;
       if (action === "import") h.chooseImport();
       if (action === "export") h.exportData();
-      if (action === "backup") h.backup();
-      if (action === "restore") h.restore();
       if (action === "add-machine") {
         if (!h.busyAction && !h.loading) h.startAddMachine();
       }
@@ -2019,14 +2046,6 @@ export default function App() {
             <button className="ghost-button" onClick={exportData} disabled={Boolean(busyAction) || loading} title="Export Excel  Ctrl+Shift+E">
               <FileDown size={18} />
               Export
-            </button>
-            <button className="ghost-button" onClick={backup} disabled={Boolean(busyAction) || loading} title="Backup database  Ctrl+Shift+B">
-              <DatabaseBackup size={18} />
-              Backup
-            </button>
-            <button className="ghost-button" onClick={restore} disabled={Boolean(busyAction) || loading} title="Restore database  Ctrl+Shift+R">
-              <ArchiveRestore size={18} />
-              Restore
             </button>
             <span className="toolbar-sep" aria-hidden="true" />
             <button className="primary-button" onClick={chooseImport} disabled={Boolean(busyAction) || loading} title="Import Excel file  Ctrl+I">
@@ -2127,7 +2146,6 @@ export default function App() {
             filteredPartCount={filteredParts.length}
             filterSummary={filterSummary}
             selectedPartIds={selectedPartIds}
-            visiblePartIds={visiblePartIds}
             allVisibleSelected={allVisibleSelected}
             selectedGroupKey={selectedGroupKey}
             busy={Boolean(busyAction)}
@@ -2140,6 +2158,8 @@ export default function App() {
               setSelectedPartId(group.parts[0]?.id ?? null);
               clearEditing();
             }}
+            onEditMachine={editMachineGroup}
+            onDeleteMachine={deleteMachineGroup}
           />
 
           {editingPart?.id ? (
@@ -2172,6 +2192,7 @@ export default function App() {
               onEditPart={startEditPart}
               onEditSelected={() => startEditPart()}
               onDeletePartGroup={deletePartGroup}
+              onDeletePart={deletePart}
               onDelete={deleteSelectedPart}
               busy={Boolean(busyAction)}
             />
@@ -2254,7 +2275,7 @@ function ShortcutsOverlay({ onClose }: { onClose: () => void }) {
     { icon: <Plus size={14} />, title: "เพิ่มเครื่องและชิ้นส่วน", desc: "กด Add Machine (Ctrl+N) เพื่อสร้างเครื่องใหม่ จากนั้นเพิ่มชิ้นส่วนภายในเครื่องนั้น" },
     { icon: <Pencil size={14} />, title: "แก้ไขและลบ", desc: "เลือกชิ้นส่วนแล้วกด Ctrl+E เพื่อแก้ไข หรือ Del เพื่อลบ สามารถเลือกหลายรายการแล้วลบพร้อมกันได้" },
     { icon: <Upload size={14} />, title: "นำเข้าจาก Excel", desc: "กด Import Excel (Ctrl+I) เพื่อโหลดข้อมูลจากสเปรดชีต ระบบจะแสดงตัวอย่างก่อนยืนยัน" },
-    { icon: <FileDown size={14} />, title: "ส่งออกและสำรองข้อมูล", desc: "Export ข้อมูลเป็น Excel (Ctrl+Shift+E) หรือ Backup ฐานข้อมูล SQLite (Ctrl+Shift+B) เพื่อเก็บสำรอง" }
+    { icon: <FileDown size={14} />, title: "ส่งออกข้อมูล", desc: "Export ข้อมูลเป็น Excel (Ctrl+Shift+E) เพื่อเก็บสำรองหรือแชร์" }
   ];
 
   const rows: Array<{ label: string; keys: string[] }> = [
@@ -2266,8 +2287,6 @@ function ShortcutsOverlay({ onClose }: { onClose: () => void }) {
     { label: "Close / Cancel", keys: ["Esc"] },
     { label: "Show Help", keys: ["?"] },
     { label: "Export Excel", keys: ["Ctrl+Shift+E"] },
-    { label: "Backup DB", keys: ["Ctrl+Shift+B"] },
-    { label: "Restore DB", keys: ["Ctrl+Shift+R"] },
     { label: "Import Excel", keys: ["Ctrl+I"] }
   ];
 
@@ -2436,6 +2455,88 @@ function countSelectedParts(parts: PartRecord[], selectedPartIds: Set<number>): 
   return selectedCount;
 }
 
+const MachineRow = memo(function MachineRow({
+  group,
+  isSelected,
+  selectedCount,
+  busy,
+  onSelect,
+  onToggle,
+  onEdit,
+  onDelete,
+}: {
+  group: MachineGroup;
+  isSelected: boolean;
+  selectedCount: number;
+  busy: boolean;
+  onSelect: (group: MachineGroup) => void;
+  onToggle: (group: MachineGroup) => void;
+  onEdit: (group: MachineGroup) => void;
+  onDelete: (group: MachineGroup) => void;
+}) {
+  const selectionClass =
+    selectedCount === 0 ? "" : selectedCount === group.parts.length ? "selection-full" : "selection-partial";
+  const hasMtStore = group.parts.some((p) => hasSpareValue(p.mtStore));
+  const hasSecondHand = group.parts.some((p) => hasSpareValue(p.secondHand));
+  const obsoleteCount = group.parts.filter((p) => p.statusOfParts.toLowerCase().includes("obsolete")).length;
+
+  return (
+    <div className={`machine-row ${isSelected ? "selected" : ""} ${selectionClass}`}>
+      <GroupCheckbox group={group} selectedCount={selectedCount} onToggle={() => onToggle(group)} />
+      <button type="button" className="machine-content" onClick={() => onSelect(group)}>
+        <div className="machine-row-top">
+          <div className="machine-title">
+            <strong>{group.machineName || "Unnamed machine"}</strong>
+            {group.machineCode ? <span className="machine-code-tag">{group.machineCode}</span> : null}
+          </div>
+          <em>{group.parts.length} part{group.parts.length > 1 ? "s" : ""}</em>
+        </div>
+        <div className="machine-meta">
+          <span><b>Plant</b>{formatPlantLabel(group.sourceSheet, group.plant)}</span>
+          {group.location ? <span><b>Loc</b>{group.location}</span> : null}
+        </div>
+        <div className="part-chip-row">
+          {group.parts.slice(0, 4).map((part) => (
+            <span key={part.id} className={part.statusOfParts.toLowerCase().includes("obsolete") ? "danger" : ""}>
+              {part.device || "Part"} · {part.brand || "-"} · {part.quantity || "0"}
+            </span>
+          ))}
+          {group.parts.length > 4 ? <span>+{group.parts.length - 4}</span> : null}
+        </div>
+        {(hasMtStore || hasSecondHand || obsoleteCount > 0) ? (
+          <div className="machine-status-row">
+            {hasMtStore ? <span className="msr-badge msr-mt"><Boxes size={10} />MT Store</span> : null}
+            {hasSecondHand ? <span className="msr-badge msr-sh"><Recycle size={10} />2nd Hand</span> : null}
+            {obsoleteCount > 0 ? <span className="msr-badge msr-obs"><TriangleAlert size={10} />{obsoleteCount} Obs</span> : null}
+          </div>
+        ) : null}
+      </button>
+      <div className="machine-row-actions">
+        <button
+          type="button"
+          className="machine-row-action-btn"
+          onClick={(e) => { e.stopPropagation(); onEdit(group); }}
+          disabled={busy}
+          title="Edit machine"
+          aria-label="Edit machine"
+        >
+          <Pencil size={13} />
+        </button>
+        <button
+          type="button"
+          className="machine-row-action-btn danger"
+          onClick={(e) => { e.stopPropagation(); onDelete(group); }}
+          disabled={busy}
+          title="Delete machine"
+          aria-label="Delete machine"
+        >
+          <Trash2 size={13} />
+        </button>
+      </div>
+    </div>
+  );
+});
+
 function MachineResultsPanel({
   scrollToGroupRef,
   loading,
@@ -2444,7 +2545,6 @@ function MachineResultsPanel({
   filteredPartCount,
   filterSummary,
   selectedPartIds,
-  visiblePartIds,
   allVisibleSelected,
   selectedGroupKey,
   busy,
@@ -2452,7 +2552,9 @@ function MachineResultsPanel({
   onClearSelected,
   onDeleteSelectedParts,
   onToggleGroupSelection,
-  onSelectGroup
+  onSelectGroup,
+  onEditMachine,
+  onDeleteMachine
 }: {
   scrollToGroupRef?: MutableRefObject<((index: number) => void) | null>;
   loading: boolean;
@@ -2461,7 +2563,6 @@ function MachineResultsPanel({
   filteredPartCount: number;
   filterSummary: string;
   selectedPartIds: Set<number>;
-  visiblePartIds: number[];
   allVisibleSelected: boolean;
   selectedGroupKey: string;
   busy: boolean;
@@ -2470,6 +2571,8 @@ function MachineResultsPanel({
   onDeleteSelectedParts: () => void;
   onToggleGroupSelection: (group: MachineGroup) => void;
   onSelectGroup: (group: MachineGroup) => void;
+  onEditMachine: (group: MachineGroup) => void;
+  onDeleteMachine: (group: MachineGroup) => void;
 }) {
   const machineWindow = useVirtualWindow(groups, MACHINE_ROW_ESTIMATE);
 
@@ -2493,6 +2596,16 @@ function MachineResultsPanel({
     };
   });
 
+  // Stable handler refs so MachineRow memo is not defeated by new function references
+  const handlersRef2 = useRef({ onSelectGroup, onToggleGroupSelection, onEditMachine, onDeleteMachine });
+  useEffect(() => {
+    handlersRef2.current = { onSelectGroup, onToggleGroupSelection, onEditMachine, onDeleteMachine };
+  });
+  const stableSelect = useCallback((g: MachineGroup) => handlersRef2.current.onSelectGroup(g), []);
+  const stableToggle = useCallback((g: MachineGroup) => handlersRef2.current.onToggleGroupSelection(g), []);
+  const stableEdit = useCallback((g: MachineGroup) => handlersRef2.current.onEditMachine(g), []);
+  const stableDelete = useCallback((g: MachineGroup) => handlersRef2.current.onDeleteMachine(g), []);
+
   return (
     <section className="result-panel">
       <div className="result-header">
@@ -2511,7 +2624,7 @@ function MachineResultsPanel({
               type="button"
               className="select-visible"
               onClick={onToggleVisibleSelection}
-              disabled={!visiblePartIds.length}
+              disabled={!filteredPartCount}
             >
               <CheckCircle2 size={15} />
               {allVisibleSelected ? "Unselect visible" : "Select visible"}
@@ -2532,44 +2645,18 @@ function MachineResultsPanel({
         {machineWindow.paddingTop ? <div className="virtual-spacer" style={{ height: machineWindow.paddingTop }} /> : null}
         {machineWindow.virtualItems.map(({ item: group }) => {
           const selectedCount = countSelectedParts(group.parts, selectedPartIds);
-          const selectionClass =
-            selectedCount === 0 ? "" : selectedCount === group.parts.length ? "selection-full" : "selection-partial";
-          const hasMtStore = group.parts.some((p) => hasSpareValue(p.mtStore));
-          const hasSecondHand = group.parts.some((p) => hasSpareValue(p.secondHand));
-          const obsoleteCount = group.parts.filter((p) => p.statusOfParts.toLowerCase().includes("obsolete")).length;
-
           return (
-            <div key={group.key} className={`machine-row ${group.key === selectedGroupKey ? "selected" : ""} ${selectionClass}`}>
-              <GroupCheckbox group={group} selectedPartIds={selectedPartIds} onToggle={() => onToggleGroupSelection(group)} />
-              <button type="button" className="machine-content" onClick={() => onSelectGroup(group)}>
-                <div className="machine-row-top">
-                  <div className="machine-title">
-                    <strong>{group.machineName || "Unnamed machine"}</strong>
-                    {group.machineCode ? <span className="machine-code-tag">{group.machineCode}</span> : null}
-                  </div>
-                  <em>{group.parts.length} part{group.parts.length > 1 ? "s" : ""}</em>
-                </div>
-                <div className="machine-meta">
-                  <span><b>Plant</b>{formatPlantLabel(group.sourceSheet, group.plant)}</span>
-                  {group.location ? <span><b>Loc</b>{group.location}</span> : null}
-                </div>
-                <div className="part-chip-row">
-                  {group.parts.slice(0, 4).map((part) => (
-                    <span key={part.id} className={part.statusOfParts.toLowerCase().includes("obsolete") ? "danger" : ""}>
-                      {part.device || "Part"} · {part.brand || "-"} · {part.quantity || "0"}
-                    </span>
-                  ))}
-                  {group.parts.length > 4 ? <span>+{group.parts.length - 4}</span> : null}
-                </div>
-                {(hasMtStore || hasSecondHand || obsoleteCount > 0) ? (
-                  <div className="machine-status-row">
-                    {hasMtStore ? <span className="msr-badge msr-mt"><Boxes size={10} />MT Store</span> : null}
-                    {hasSecondHand ? <span className="msr-badge msr-sh"><Recycle size={10} />2nd Hand</span> : null}
-                    {obsoleteCount > 0 ? <span className="msr-badge msr-obs"><TriangleAlert size={10} />{obsoleteCount} Obs</span> : null}
-                  </div>
-                ) : null}
-              </button>
-            </div>
+            <MachineRow
+              key={group.key}
+              group={group}
+              isSelected={group.key === selectedGroupKey}
+              selectedCount={selectedCount}
+              busy={busy}
+              onSelect={stableSelect}
+              onToggle={stableToggle}
+              onEdit={stableEdit}
+              onDelete={stableDelete}
+            />
           );
         })}
         {machineWindow.paddingBottom ? <div className="virtual-spacer" style={{ height: machineWindow.paddingBottom }} /> : null}
@@ -2594,14 +2681,13 @@ function MachineResultsPanel({
 
 function GroupCheckbox({
   group,
-  selectedPartIds,
+  selectedCount,
   onToggle
 }: {
   group: MachineGroup;
-  selectedPartIds: Set<number>;
+  selectedCount: number;
   onToggle: () => void;
 }) {
-  const selectedCount = countSelectedParts(group.parts, selectedPartIds);
   const checked = group.parts.length > 0 && selectedCount === group.parts.length;
   const indeterminate = selectedCount > 0 && selectedCount < group.parts.length;
 
@@ -2966,6 +3052,7 @@ function DetailView({
   onEditPart,
   onEditSelected,
   onDeletePartGroup,
+  onDeletePart,
   onDelete,
   busy
 }: {
@@ -2984,6 +3071,7 @@ function DetailView({
   onEditPart: (part: PartRecord) => void;
   onEditSelected: () => void;
   onDeletePartGroup: (parts: PartRecord[]) => void;
+  onDeletePart: (part: PartRecord) => void;
   onDelete: () => void;
   busy: boolean;
 }) {
@@ -3157,6 +3245,7 @@ function DetailView({
                         <span>Model</span>
                         <span>Brand</span>
                         <span>Qty</span>
+                        <span>Action</span>
                       </div>
                       {cluster.parts.map((part) => {
                         const checkedForDelete = selectedPartIds.has(part.id);
@@ -3190,6 +3279,9 @@ function DetailView({
                               <small>{supportLine}</small>
                               <span>{part.brand || "-"}</span>
                               <em>{part.quantity || "0"}</em>
+                              <span className="part-action-badge">
+                                {part.actionByMt ? "Action by MT" : part.actionByMaker ? "Maker" : ""}
+                              </span>
                             </button>
                             <button
                               type="button"
@@ -3200,6 +3292,16 @@ function DetailView({
                               aria-label={`Edit ${partLabel}`}
                             >
                               <Pencil size={14} />
+                            </button>
+                            <button
+                              type="button"
+                              className="part-child-edit part-child-delete"
+                              onClick={() => onDeletePart(part)}
+                              disabled={busy}
+                              title={`Delete ${partLabel}`}
+                              aria-label={`Delete ${partLabel}`}
+                            >
+                              <Trash2 size={14} />
                             </button>
                           </div>
                         );
@@ -3238,6 +3340,7 @@ function DetailView({
             <Info label="Quantity" value={selectedPart.quantity || "0"} />
             <Info label="Status" value={selectedPart.statusOfParts || "-"} danger={selectedPart.statusOfParts.toLowerCase().includes("obsolete")} />
             <Info label="Software Support" value={selectedPart.softwareSupport || "-"} wide />
+            <Info label="Action by" value={selectedPart.actionByMt ? "Action by MT" : selectedPart.actionByMaker ? "Maker" : "-"} wide />
           </dl>
 
           <div className="spare-section">
@@ -3502,9 +3605,21 @@ function EditForm({
   const softwareOptions = useMemo(() => softwareOptionsForPart(part), [part.brand, part.device]);
   const machineDescription = [part.machineName, part.machineCode].filter(Boolean).join(" / ");
   const description = showsMachineFields ? machineDescription || "New machine" : machineDescription || "Selected machine";
+  const formRef = useRef<HTMLFormElement>(null);
+
+  useEffect(() => {
+    if (!part.id) {
+      const el = formRef.current?.querySelector<HTMLElement>(
+        'input:not([type="checkbox"]):not([type="hidden"]), select'
+      );
+      el?.focus();
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <form
+      ref={formRef}
       className="edit-form"
       onSubmit={(event) => {
         event.preventDefault();

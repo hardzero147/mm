@@ -3,15 +3,20 @@ const os = require("node:os");
 const path = require("node:path");
 const { app } = require("electron");
 const ExcelJS = require("exceljs");
-
-const workbookPath =
-  process.argv[2] || "C:\\Users\\preec\\Downloads\\MASTER ELECTRICAL PARTS PACKING MACHINE.xlsx";
+const { createTestWorkbook } = require("./test-workbook.cjs");
 
 app.whenReady().then(async () => {
   const { PartsDatabase } = require("../dist/main/database.js");
   const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "electrical-parts-db-"));
+  const requestedWorkbookPath = process.argv[2];
+  const workbookPath =
+    requestedWorkbookPath || path.join(tempDir, "test-electrical-parts.xlsx");
+  if (!requestedWorkbookPath) {
+    await createTestWorkbook(workbookPath);
+  }
   const dbPath = path.join(tempDir, "smoke.sqlite");
   const backupPath = path.join(tempDir, "backup.sqlite");
+  const invalidBackupPath = path.join(tempDir, "invalid-backup.sqlite");
   const exportPath = path.join(tempDir, "export.xlsx");
 
   const db = new PartsDatabase();
@@ -64,7 +69,7 @@ app.whenReady().then(async () => {
     );
   }
   const mergeRefs = firstExportSheet.model.merges ?? [];
-  for (const mergeRef of ["A1:A2", "L1:M1", "N1:O1", "P1:P2", "A3:A8"]) {
+  for (const mergeRef of ["A1:A2", "L1:M1", "N1:O1", "A3:A8"]) {
     if (!mergeRefs.includes(mergeRef)) {
       throw new Error(`Export missing merge: ${mergeRef}`);
     }
@@ -108,6 +113,28 @@ app.whenReady().then(async () => {
   }
 
   db.backupTo(backupPath);
+  const rowsBeforeInvalidRestore = db.getSnapshot().parts.length;
+  fs.writeFileSync(invalidBackupPath, "not a sqlite database");
+  let unsupportedImportRejected = false;
+  try {
+    await db.previewImport(invalidBackupPath);
+  } catch (error) {
+    unsupportedImportRejected = String(error.message).includes("Unsupported Excel workbook extension");
+  }
+  if (!unsupportedImportRejected) {
+    throw new Error("Unsupported import extension was not rejected.");
+  }
+
+  let invalidRestoreRejected = false;
+  try {
+    await db.restoreFrom(invalidBackupPath);
+  } catch (error) {
+    invalidRestoreRejected = String(error.message).includes("valid Parts Manager database");
+  }
+  if (!invalidRestoreRejected || db.getSnapshot().parts.length !== rowsBeforeInvalidRestore) {
+    throw new Error("Invalid restore was not rejected without changing current data.");
+  }
+
   db.deletePart(edited.id);
   if (db.getSnapshot().parts.length !== 1249) {
     throw new Error("Delete did not persist.");

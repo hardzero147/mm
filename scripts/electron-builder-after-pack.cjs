@@ -2,7 +2,7 @@ const { spawnSync } = require("node:child_process");
 const path = require("node:path");
 
 module.exports = async function afterPack(context) {
-  if (context.electronPlatformName !== "win32") {
+  if (context.electronPlatformName !== "win32" || process.platform !== "win32") {
     return;
   }
 

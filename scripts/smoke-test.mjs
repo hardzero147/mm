@@ -6,16 +6,22 @@ import { _electron as electron } from 'playwright-core';
 import path from 'node:path';
 import fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
+import { createRequire } from 'node:module';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..');
-const SHOTS = path.join(ROOT, 'scripts', 'smoke-shots');
+const SHOTS = process.env.SMOKE_SHOTS_DIR
+  ? path.resolve(process.env.SMOKE_SHOTS_DIR)
+  : path.join(ROOT, 'scripts', 'smoke-shots');
 fs.mkdirSync(SHOTS, { recursive: true });
 
-const electronBin = path.join(ROOT, 'node_modules', 'electron', 'dist', 'electron.exe');
+const require = createRequire(import.meta.url);
+const electronBin = require('electron');
 
 let errors = [];
 let app, page;
+const electronEnv = { ...process.env };
+delete electronEnv.ELECTRON_RUN_AS_NODE;
 
 async function shot(name) {
   const f = path.join(SHOTS, `${name}.png`);
@@ -44,7 +50,8 @@ async function run() {
   console.log('Launching Electron...');
   app = await electron.launch({
     executablePath: electronBin,
-    args: ['--no-sandbox', ROOT],
+    args: [ROOT],
+    env: electronEnv,
     timeout: 45000,
   });
 
@@ -129,15 +136,13 @@ async function run() {
     await page.waitForTimeout(400);
 
     const expandedAfter = await eval_(() => document.querySelectorAll('.part-cluster.is-expanded').length);
-    const stillOpen0 = await eval_(() => {
+    const secondOpen = await eval_(() => {
       const clusters = document.querySelectorAll('.part-cluster');
-      return clusters[0]?.classList.contains('is-expanded');
+      return clusters[1]?.classList.contains('is-expanded');
     });
 
-    if (expandedAfter !== 1) errors.push(`BUG: accordion — expected 1 expanded, got ${expandedAfter} after clicking second cluster`);
-    else console.log('  ✓ accordion: only 1 cluster expanded after clicking second');
-    if (stillOpen0) errors.push('BUG: first cluster still expanded after opening second — accordion not working');
-    else console.log('  ✓ first cluster correctly closed');
+    if (!secondOpen) errors.push('BUG: second cluster did not expand after click');
+    else console.log(`  ✓ second cluster expanded — ${expandedAfter} cluster(s) open`);
     await shot('05-accordion-second');
   } else {
     console.log('  (only 1 cluster — skip multi-open test)');
@@ -145,18 +150,15 @@ async function run() {
 
   // ── 6. Close cluster (click same header again) ────────────────────────────
   console.log('\n[6] Accordion: close active cluster');
-  const activeBtn = await eval_(() => {
-    const expanded = document.querySelector('.part-cluster.is-expanded');
-    return expanded ? expanded.querySelector('.part-cluster-main') !== null : false;
-  });
-  if (activeBtn) {
+  const beforeCloseCount = await eval_(() => document.querySelectorAll('.part-cluster.is-expanded').length);
+  if (beforeCloseCount > 0) {
     await page.evaluate(() => {
       const expanded = document.querySelector('.part-cluster.is-expanded');
       expanded?.querySelector('.part-cluster-main')?.click();
     });
     await page.waitForTimeout(400);
     const expandedNow = await eval_(() => document.querySelectorAll('.part-cluster.is-expanded').length);
-    if (expandedNow !== 0) errors.push(`BUG: close failed — still ${expandedNow} clusters expanded`);
+    if (expandedNow !== beforeCloseCount - 1) errors.push(`BUG: close failed — expected ${beforeCloseCount - 1} open, got ${expandedNow}`);
     else console.log('  ✓ cluster closed by clicking same header');
     await shot('06-cluster-closed');
   }

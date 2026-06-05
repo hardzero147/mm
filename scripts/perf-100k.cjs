@@ -4,6 +4,7 @@ const path = require("node:path");
 const { app } = require("electron");
 
 const rowCount = Number(process.argv[2] ?? 100000);
+const partsPerMachine = Math.max(1, Number(process.argv[3] ?? 1));
 const shouldExport = process.argv.includes("--export");
 
 function ms(start) {
@@ -16,11 +17,12 @@ function makeRecord(index, now) {
   const locations = ["PK", "PK", "BCPK", "NOC", "LD PAKING", "BD"];
   const devices = ["PLC", "HMI", "SERVO DRIVE", "INVERTER", "OPTION CARD", "MAIN MOTOR"];
   const brands = ["OMRON", "PRO-FACE", "REXROTH", "FUJI", "B&R", "MITSUBISHI"];
-  const familyIndex = index % sourceSheets.length;
+  const machineIndex = Math.floor(index / partsPerMachine);
+  const familyIndex = machineIndex % sourceSheets.length;
   const device = devices[index % devices.length];
   const brand = brands[(index * 2) % brands.length];
-  const machineCode = `${sourceSheets[familyIndex].replace(/\s+/g, "")}-${String(index + 1).padStart(6, "0")}`;
-  const machineName = `PERF MACHINE ${String(index + 1).padStart(6, "0")}`;
+  const machineCode = `${sourceSheets[familyIndex].replace(/\s+/g, "")}-${String(machineIndex + 1).padStart(6, "0")}`;
+  const machineName = `PERF MACHINE ${String(machineIndex + 1).padStart(6, "0")}`;
   const model = `${brand.replace(/[^A-Z0-9]/gi, "")}-${String(index + 1).padStart(6, "0")}`;
   const importKey = [
     sourceSheets[familyIndex],
@@ -96,6 +98,10 @@ app.whenReady().then(async () => {
   start = process.hrtime.bigint();
   const snapshot = db.getSnapshot();
   const snapshotMs = ms(start);
+  const expectedMachines = Math.ceil(rowCount / partsPerMachine);
+  if (snapshot.stats.machines !== expectedMachines) {
+    throw new Error(`Expected ${expectedMachines} machines, got ${snapshot.stats.machines}`);
+  }
 
   start = process.hrtime.bigint();
   const edited = db.savePart({ ...snapshot.parts[Math.floor(rowCount / 2)], quantity: "9" });
@@ -129,6 +135,8 @@ app.whenReady().then(async () => {
     JSON.stringify(
       {
         rowCount,
+        partsPerMachine,
+        expectedMachines,
         initializeMs,
         insertMs,
         snapshotMs,

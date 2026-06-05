@@ -101,8 +101,6 @@ export interface ElectricalPartsApi {
   deletePart(id: number): Promise<ApiResponse<{ id: number }>>;
   deleteParts(ids: number[]): Promise<ApiResponse<{ ids: number[] }>>;
   exportData(): Promise<ApiResponse<ExportResult>>;
-  backupDatabase(): Promise<ApiResponse<ExportResult>>;
-  restoreDatabase(): Promise<ApiResponse<ExportResult>>;
 }
 
 declare global {

@@ -1,11 +1,16 @@
+import fs from "node:fs";
+import os from "node:os";
 import path from "node:path";
 import { parseWorkbook } from "../src/main/importer";
-
-const workbookPath =
-  process.argv[2] ??
-  "C:\\Users\\preec\\Downloads\\MASTER ELECTRICAL PARTS PACKING MACHINE.xlsx";
+import { createTestWorkbook } from "./test-workbook.cjs";
 
 async function main() {
+  const requestedWorkbookPath = process.argv[2];
+  const workbookPath =
+    requestedWorkbookPath ?? path.join(fs.mkdtempSync(path.join(os.tmpdir(), "electrical-parts-import-")), "test.xlsx");
+  if (!requestedWorkbookPath) {
+    await createTestWorkbook(workbookPath);
+  }
   const result = await parseWorkbook(path.resolve(workbookPath));
 
   console.log(`Workbook: ${workbookPath}`);
