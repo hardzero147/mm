@@ -33,6 +33,7 @@ declare global {
   }
 }
 import { memo, useCallback, useDeferredValue, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { flushSync } from "react-dom";
 import type { MutableRefObject, ReactNode, UIEvent } from "react";
 import type {
   ApiResponse,
@@ -1221,10 +1222,10 @@ function useTheme(): [Theme, (e: React.MouseEvent<HTMLButtonElement>) => void] {
     if (typeof (document as any).startViewTransition === "function") {
       themeTransitioning.current = true;
       const vt = (document as any).startViewTransition(() => {
+        flushSync(() => setTheme(next));
         root.setAttribute("data-theme", next);
         try { localStorage.setItem("pm-theme", next); } catch {}
       });
-      setTheme(next);
       vt.finished.finally(() => { themeTransitioning.current = false; });
     } else {
       root.classList.add("theme-anim");

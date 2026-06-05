@@ -4075,23 +4075,17 @@ kbd {
 
 /* ── View Transitions: smooth ripple from toggle button ─── */
 @media (prefers-reduced-motion: no-preference) {
+  /* Old snapshot stays static — new theme paints over it cleanly */
   ::view-transition-old(root) {
-    animation: _theme-recede 380ms cubic-bezier(0.4, 0, 1, 1) both;
-    mix-blend-mode: normal;
+    animation: none;
   }
+  /* New snapshot expands as a circle from the button position */
   ::view-transition-new(root) {
-    animation: _theme-emerge 460ms cubic-bezier(0.2, 0, 0, 1) both;
-    mix-blend-mode: normal;
+    animation: _theme-emerge 380ms cubic-bezier(0.4, 0, 0.2, 1) both;
   }
 }
 
-/* Old content: clean fade-out, no scale jitter */
-@keyframes _theme-recede {
-  from { opacity: 1; }
-  to   { opacity: 0; }
-}
-
-/* New content: pinpoint dot at button → expands to cover */
+/* New content: circle from button → covers screen */
 @keyframes _theme-emerge {
   from {
     clip-path: circle(0% at var(--theme-origin-x, 50%) var(--theme-origin-y, 50%));
@@ -4119,8 +4113,8 @@ kbd {
   --panel-3: #e4e9f5;
   --field: #f4f7fd;
   --text: #0f1c2e;
-  --muted: #3a5270;
-  --faint: #6b8299;
+  --muted: #2e4a68;
+  --faint: #4a6480;
   --row: #f5f8ff;
   --row-hover: #eaeffa;
   --row-selected: #c4ede7;
@@ -4271,7 +4265,7 @@ kbd {
 }
 [data-theme="light"] .readonly-field input,
 [data-theme="light"] .readonly-field textarea {
-  color: #536880;
+  color: #1e3550;
   background:
     linear-gradient(180deg, rgba(0, 0, 0, 0.01), rgba(0, 0, 0, 0)),
     rgba(0, 0, 0, 0.04);
@@ -4410,13 +4404,13 @@ kbd {
 [data-theme="light"] .machine-meta span,
 [data-theme="light"] .detail-meta span {
   background: rgba(30, 55, 120, 0.07);
-  border-color: rgba(30, 55, 120, 0.14);
-  color: #253d5c;
+  border-color: rgba(30, 55, 120, 0.16);
+  color: #1a3052;
 }
 [data-theme="light"] .part-chip-row span {
-  color: #253d5c;
+  color: #1a3052;
   background: rgba(30, 55, 120, 0.07);
-  border-color: rgba(30, 55, 120, 0.13);
+  border-color: rgba(30, 55, 120, 0.15);
 }
 [data-theme="light"] .part-chip-row span.danger {
   color: #b52530;
@@ -4425,7 +4419,7 @@ kbd {
 }
 [data-theme="light"] .machine-meta span b,
 [data-theme="light"] .detail-meta span b {
-  color: #1a2d44;
+  color: #0f1c2e;
 }
 [data-theme="light"] .machine-code-tag {
   color: #3a5faa;
@@ -4475,7 +4469,7 @@ kbd {
   color: #18263a;
 }
 [data-theme="light"] .machine-overview-grid b {
-  color: #3a5270;
+  color: #2a4262;
 }
 [data-theme="light"] .machine-overview-actions button {
   color: #253d5c;
@@ -4601,13 +4595,13 @@ kbd {
   color: #0e6e65;
 }
 [data-theme="light"] .spare-off .spare-card-label {
-  color: #4e6680;
+  color: #2e4a68;
 }
 [data-theme="light"] .spare-on .spare-card-value {
   color: #083330;
 }
 [data-theme="light"] .spare-off .spare-card-value {
-  color: #4e6680;
+  color: #334d66;
 }
 
 /* ── Edit form ──────────────────────────────────────────── */
