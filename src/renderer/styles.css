@@ -2137,21 +2137,22 @@ button:focus-visible {
   grid-template-columns: minmax(0, 1.35fr) minmax(54px, 0.65fr) 38px 78px;
   align-items: center;
   gap: 6px;
-  margin: 0 68px 0 34px;
+  margin: 0 80px 0 40px;
   color: #8794a5;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
 }
 
 .part-child-row {
   display: grid;
-  grid-template-columns: 30px minmax(0, 1fr) 30px 30px;
+  grid-template-columns: 30px minmax(0, 1fr);
+  position: relative;
   align-items: center;
   gap: 4px;
-  min-height: 38px;
-  padding: 3px;
+  min-height: 42px;
+  padding: 4px;
   border-radius: 8px;
   border: 1px solid rgba(255, 255, 255, 0.08);
   background:
@@ -2181,6 +2182,25 @@ button:focus-visible {
   border-color: rgba(69, 196, 182, 0.38);
 }
 
+.part-child-buttons {
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 160ms ease;
+}
+
+.part-child-row:hover .part-child-buttons,
+.part-child-row.selected .part-child-buttons {
+  opacity: 1;
+  pointer-events: auto;
+}
+
 .child-select {
   width: 27px;
   height: 27px;
@@ -2204,7 +2224,7 @@ button:focus-visible {
   align-items: center;
   column-gap: 6px;
   row-gap: 0;
-  padding: 2px 6px;
+  padding: 3px 70px 3px 6px;
   color: inherit;
   background: transparent;
   text-align: left;
@@ -2249,17 +2269,18 @@ button:focus-visible {
   grid-column: 3;
   grid-row: 1 / span 2;
   justify-self: end;
-  min-height: 21px;
-  min-width: 32px;
+  min-height: 22px;
+  min-width: 30px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 0 6px;
+  padding: 0 7px;
   border-radius: 999px;
-  color: #dce8f8;
-  background: rgba(255, 255, 255, 0.07);
+  color: #c8daf0;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   font-size: 11px;
-  font-weight: 800;
+  font-weight: 700;
 }
 
 .part-child-content .part-action-badge {
@@ -4559,6 +4580,7 @@ kbd {
 [data-theme="light"] .part-child-content em {
   color: #253d5c;
   background: rgba(30, 55, 120, 0.08);
+  border-color: rgba(30, 55, 120, 0.12);
 }
 [data-theme="light"] .part-child-content .part-action-badge {
   color: #0d7a72;

@@ -3280,30 +3280,34 @@ function DetailView({
                               <small>{supportLine}</small>
                               <span>{part.brand || "-"}</span>
                               <em>{part.quantity || "0"}</em>
-                              <span className="part-action-badge">
-                                {part.actionByMt ? "Action by MT" : part.actionByMaker ? "Maker" : ""}
-                              </span>
+                              {(part.actionByMt || part.actionByMaker) && (
+                                <span className="part-action-badge">
+                                  {part.actionByMt ? "Action by MT" : "Maker"}
+                                </span>
+                              )}
                             </button>
-                            <button
-                              type="button"
-                              className="part-child-edit"
-                              onClick={() => onEditPart(part)}
-                              disabled={busy}
-                              title={`Edit ${partLabel}`}
-                              aria-label={`Edit ${partLabel}`}
-                            >
-                              <Pencil size={14} />
-                            </button>
-                            <button
-                              type="button"
-                              className="part-child-edit part-child-delete"
-                              onClick={() => onDeletePart(part)}
-                              disabled={busy}
-                              title={`Delete ${partLabel}`}
-                              aria-label={`Delete ${partLabel}`}
-                            >
-                              <Trash2 size={14} />
-                            </button>
+                            <div className="part-child-buttons">
+                              <button
+                                type="button"
+                                className="part-child-edit"
+                                onClick={() => onEditPart(part)}
+                                disabled={busy}
+                                title={`Edit ${partLabel}`}
+                                aria-label={`Edit ${partLabel}`}
+                              >
+                                <Pencil size={14} />
+                              </button>
+                              <button
+                                type="button"
+                                className="part-child-edit part-child-delete"
+                                onClick={() => onDeletePart(part)}
+                                disabled={busy}
+                                title={`Delete ${partLabel}`}
+                                aria-label={`Delete ${partLabel}`}
+                              >
+                                <Trash2 size={14} />
+                              </button>
+                            </div>
                           </div>
                         );
                       })}
