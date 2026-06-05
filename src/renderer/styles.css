@@ -4517,21 +4517,26 @@ kbd {
 }
 
 /* ── Machine overview ───────────────────────────────────── */
+[data-theme="light"] .machine-overview {
+  background: linear-gradient(180deg, #ffffff, #f2f6ff);
+  border-color: rgba(30, 55, 120, 0.18);
+  box-shadow: 0 2px 8px rgba(20, 45, 100, 0.08), inset 0 1px 0 #ffffff;
+}
 [data-theme="light"] .machine-name-line strong {
-  color: #1a2535;
+  color: #0e1d30;
 }
 [data-theme="light"] .machine-name-line em {
-  color: #3a5a8e;
-  background: rgba(0, 0, 0, 0.05);
-  border-color: rgba(0, 0, 0, 0.08);
+  color: #1e4080;
+  background: rgba(30, 80, 200, 0.1);
+  border-color: rgba(30, 80, 200, 0.2);
 }
 [data-theme="light"] .machine-overview-grid span {
-  background: rgba(30, 55, 120, 0.07);
-  border-color: rgba(30, 55, 120, 0.13);
-  color: #18263a;
+  background: rgba(30, 55, 120, 0.08);
+  border-color: rgba(30, 55, 120, 0.18);
+  color: #0e1d30;
 }
 [data-theme="light"] .machine-overview-grid b {
-  color: #2a4262;
+  color: #3a5478;
 }
 [data-theme="light"] .machine-overview-actions button {
   color: #253d5c;
@@ -4605,12 +4610,21 @@ kbd {
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06), var(--button-inset);
 }
 
-/* ── Detail list labels (overrides #aebbd0 dark-mode hardcode) ─── */
+/* ── Detail list cards + labels ───────────────────────────────── */
+[data-theme="light"] .detail-list div {
+  background: #ffffff;
+  border-color: rgba(30, 55, 120, 0.13);
+  box-shadow: 0 1px 4px rgba(20, 45, 100, 0.07), inset 0 1px 0 #ffffff;
+}
+[data-theme="light"] .detail-list dd {
+  color: #0e1d30;
+  font-weight: 500;
+}
 [data-theme="light"] .detail-section-label {
   color: var(--muted);
 }
 [data-theme="light"] .detail-list dt {
-  color: var(--muted);
+  color: #4a6484;
 }
 [data-theme="light"] .spare-section-title {
   color: #1a8a80;
@@ -4682,41 +4696,78 @@ kbd {
 /* ── Metrics / summary strip ────────────────────────────── */
 [data-theme="light"] .metric,
 [data-theme="light"] .import-status {
-  background: linear-gradient(160deg, #ffffff 0%, #eef3ff 100%);
-  border-color: rgba(30, 55, 120, 0.14);
-  box-shadow: 0 3px 14px rgba(20, 45, 100, 0.09), inset 0 1px 0 #ffffff;
+  background: linear-gradient(160deg, #ffffff 0%, #e8effe 100%);
+  border-color: rgba(30, 55, 120, 0.18);
+  box-shadow: 0 3px 14px rgba(20, 45, 100, 0.1), inset 0 1px 0 #ffffff;
 }
 [data-theme="light"] .metric-combo {
-  background: linear-gradient(135deg, rgba(115, 148, 232, 0.2), rgba(69, 196, 182, 0.13) 50%, #eef3ff);
-  border-color: rgba(115, 148, 232, 0.36);
-  box-shadow: 0 3px 14px rgba(20, 45, 100, 0.12), inset 0 1px 0 #ffffff;
+  background: linear-gradient(135deg, #dde8ff 0%, #cce6f8 50%, #d4f0ec 100%);
+  border-color: rgba(80, 130, 220, 0.38);
+  box-shadow: 0 4px 18px rgba(20, 45, 100, 0.13), inset 0 1px 0 #ffffff;
 }
 [data-theme="light"] .metric-combo::after {
-  background: linear-gradient(105deg, transparent 0 44%, rgba(255, 255, 255, 0.5) 50%, transparent 58% 100%);
+  background: linear-gradient(105deg, transparent 0 44%, rgba(255, 255, 255, 0.6) 50%, transparent 58% 100%);
 }
 [data-theme="light"] .summary-strip .metric-label {
-  color: #3a4f68;
+  color: #1a3460;
+}
+[data-theme="light"] .summary-strip .metric-combo .metric-kicker > span:last-child {
+  color: #1a3460;
 }
 [data-theme="light"] .metric-segment + .metric-segment {
   border-left-color: rgba(0, 0, 0, 0.1);
 }
 [data-theme="light"] .metric .metric-icon {
-  color: #1a2535;
-  background: rgba(0, 0, 0, 0.06);
-  border-color: rgba(0, 0, 0, 0.08);
+  color: #1e3060;
+  background: rgba(30, 55, 120, 0.09);
+  border-color: rgba(30, 55, 120, 0.15);
 }
 [data-theme="light"] .metric .metric-segment.blue .metric-icon {
-  color: #3a5faa;
-  background: rgba(115, 148, 232, 0.12);
-  border-color: rgba(115, 148, 232, 0.2);
+  color: #2a52a8;
+  background: rgba(80, 130, 220, 0.14);
+  border-color: rgba(80, 130, 220, 0.26);
 }
 [data-theme="light"] .metric .metric-segment.teal .metric-icon {
-  color: #1a8a80;
-  background: rgba(69, 196, 182, 0.12);
-  border-color: rgba(69, 196, 182, 0.2);
+  color: #0e7267;
+  background: rgba(14, 120, 108, 0.13);
+  border-color: rgba(14, 120, 108, 0.26);
+}
+[data-theme="light"] .import-status .status-icon {
+  color: #0e7a72;
+  background: rgba(14, 122, 114, 0.1);
+  border-color: rgba(14, 122, 114, 0.22);
 }
 [data-theme="light"] .summary-strip .import-status strong {
   color: #1a2535;
+}
+/* ── Metric active states (light mode needs opaque backgrounds) ─ */
+[data-theme="light"] .metric-button.active.orange {
+  background: linear-gradient(160deg, #c87808, #7a3f04);
+  border-color: #e09828;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.18),
+    0 0 0 1px rgba(200, 120, 8, 0.36),
+    0 10px 28px rgba(140, 80, 0, 0.28);
+}
+[data-theme="light"] .metric-button.active.blue {
+  background: linear-gradient(160deg, #3060c8, #1a3578);
+  border-color: #5888e0;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.18),
+    0 0 0 1px rgba(60, 100, 200, 0.36),
+    0 10px 28px rgba(20, 50, 140, 0.28);
+}
+[data-theme="light"] .metric-button.active.teal {
+  background: linear-gradient(160deg, #108878, #054848);
+  border-color: #30b8a8;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.18),
+    0 0 0 1px rgba(20, 160, 140, 0.36),
+    0 10px 28px rgba(0, 100, 90, 0.28);
+}
+[data-theme="light"] .metric-button.active.coral {
+  background: linear-gradient(160deg, #c83040, #701828);
+  border-color: #f06070;
 }
 
 /* ── Import preview ─────────────────────────────────────── */
