@@ -3282,7 +3282,7 @@ function DetailView({
                               <em>{part.quantity || "0"}</em>
                               {(part.actionByMt || part.actionByMaker) && (
                                 <span className="part-action-badge">
-                                  {part.actionByMt ? "Action by MT" : "Maker"}
+                                  {part.actionByMt ? "MT" : "Maker"}
                                 </span>
                               )}
                             </button>
@@ -3345,7 +3345,7 @@ function DetailView({
             <Info label="Quantity" value={selectedPart.quantity || "0"} />
             <Info label="Status" value={selectedPart.statusOfParts || "-"} danger={selectedPart.statusOfParts.toLowerCase().includes("obsolete")} />
             <Info label="Software Support" value={selectedPart.softwareSupport || "-"} wide />
-            <Info label="Action by" value={selectedPart.actionByMt ? "Action by MT" : selectedPart.actionByMaker ? "Maker" : "-"} wide />
+            <Info label="Action by" value={selectedPart.actionByMt ? "MT" : selectedPart.actionByMaker ? "Maker" : "-"} wide />
           </dl>
 
           <div className="spare-section">

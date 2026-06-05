@@ -2145,7 +2145,9 @@ button:focus-visible {
   text-transform: uppercase;
 }
 
-.part-model-list-head span:nth-child(3),
+.part-model-list-head span:nth-child(3) {
+  text-align: center;
+}
 .part-model-list-head span:nth-child(4) {
   text-align: right;
 }
@@ -2273,7 +2275,7 @@ button:focus-visible {
 .part-child-content em {
   grid-column: 3;
   grid-row: 1 / span 2;
-  justify-self: end;
+  justify-self: center;
   min-height: 22px;
   min-width: 30px;
   display: inline-flex;
