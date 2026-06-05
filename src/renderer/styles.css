@@ -1384,7 +1384,7 @@ button:focus-visible {
 }
 
 .group-select {
-  margin-top: 2px;
+  margin-top: 1px;
 }
 
 .machine-list {
@@ -1403,30 +1403,32 @@ button:focus-visible {
   width: 100%;
   text-align: left;
   border: 1px solid rgba(255, 255, 255, 0.095);
-  border-left: 4px solid transparent;
-  border-radius: 10px;
+  border-left: 3px solid transparent;
+  border-radius: 11px;
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.038), rgba(255, 255, 255, 0.008)),
+    linear-gradient(160deg, rgba(255, 255, 255, 0.042) 0%, rgba(255, 255, 255, 0.006) 100%),
     var(--row);
   color: var(--text);
-  padding: 10px 10px 10px 12px;
-  margin-bottom: 8px;
+  padding: 11px 12px 11px 12px;
+  margin-bottom: 7px;
   display: grid;
-  grid-template-columns: 34px minmax(0, 1fr) auto;
-  align-items: center;
-  gap: 11px;
+  grid-template-columns: 30px minmax(0, 1fr);
+  align-items: start;
+  gap: 10px;
+  position: relative;
   transition:
     border-color var(--t-fast) var(--ease-out),
+    background var(--t-fast) var(--ease-out),
     box-shadow var(--t-fast) var(--ease-out);
   content-visibility: auto;
   contain-intrinsic-size: 110px;
 }
 
 .machine-row:hover {
-  border-color: rgba(255, 255, 255, 0.22);
-  border-left-color: rgba(69, 196, 182, 0.72);
+  border-color: rgba(255, 255, 255, 0.18);
+  border-left-color: rgba(69, 196, 182, 0.8);
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.054), rgba(255, 255, 255, 0.012)),
+    linear-gradient(160deg, rgba(255, 255, 255, 0.056) 0%, rgba(255, 255, 255, 0.014) 100%),
     var(--row-hover);
 }
 
@@ -1458,7 +1460,7 @@ button:focus-visible {
   background: transparent;
   color: inherit;
   display: grid;
-  gap: 7px;
+  gap: 6px;
   padding: 0;
   text-align: left;
   cursor: pointer;
@@ -1471,93 +1473,120 @@ button:focus-visible {
 }
 
 .machine-row-actions {
+  position: absolute;
+  top: 10px;
+  right: 10px;
   display: flex;
-  flex-direction: column;
-  gap: 5px;
+  flex-direction: row;
+  gap: 4px;
   opacity: 0;
-  transition: opacity 150ms ease;
+  pointer-events: none;
+  transition: opacity 160ms ease;
+  z-index: 2;
 }
 
 .machine-row:hover .machine-row-actions,
 .machine-row.selected .machine-row-actions {
   opacity: 1;
+  pointer-events: auto;
+}
+
+/* Parts count fades out when actions appear */
+.machine-row:hover .machine-row-top em,
+.machine-row.selected .machine-row-top em {
+  opacity: 0;
+  pointer-events: none;
 }
 
 .machine-row-action-btn {
-  width: 28px;
-  height: 28px;
+  width: 26px;
+  height: 26px;
   border-radius: 7px;
   border: 1px solid var(--button-border);
   display: inline-flex;
   align-items: center;
   justify-content: center;
   padding: 0;
-  color: #c5d0de;
+  color: #b8c6d8;
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.02)),
-    rgba(255, 255, 255, 0.05);
+    linear-gradient(160deg, rgba(255, 255, 255, 0.09), rgba(255, 255, 255, 0.03)),
+    rgba(255, 255, 255, 0.06);
   transition:
-    background 130ms var(--ease-out),
-    border-color 130ms var(--ease-out),
-    transform 150ms var(--ease-spring);
+    background 120ms var(--ease-out),
+    border-color 120ms var(--ease-out),
+    color 120ms var(--ease-out),
+    transform 160ms var(--ease-spring);
   cursor: pointer;
 }
 
 .machine-row-action-btn:hover:not(:disabled) {
-  border-color: rgba(69, 196, 182, 0.46);
+  border-color: rgba(69, 196, 182, 0.5);
   background:
-    linear-gradient(180deg, rgba(69, 196, 182, 0.22), rgba(69, 196, 182, 0.07)),
+    linear-gradient(160deg, rgba(69, 196, 182, 0.24), rgba(69, 196, 182, 0.08)),
     rgba(255, 255, 255, 0.05);
-  transform: scale(1.1);
+  transform: scale(1.12);
   color: var(--teal);
 }
 
 .machine-row-action-btn.danger:hover:not(:disabled) {
-  border-color: rgba(248, 81, 73, 0.46);
+  border-color: rgba(248, 81, 73, 0.5);
   background:
-    linear-gradient(180deg, rgba(248, 81, 73, 0.18), rgba(248, 81, 73, 0.06)),
+    linear-gradient(160deg, rgba(248, 81, 73, 0.2), rgba(248, 81, 73, 0.06)),
     rgba(255, 255, 255, 0.04);
   color: #f85149;
+  transform: scale(1.12);
 }
 
 .machine-row-action-btn:disabled {
-  opacity: 0.35;
+  opacity: 0.3;
   cursor: not-allowed;
 }
 
 .machine-row-top {
   display: flex;
-  justify-content: space-between;
-  gap: 14px;
+  align-items: center;
+  gap: 10px;
+  min-height: 26px;
+  min-width: 0;
+  overflow: hidden;
+  padding-right: 68px;
 }
 
 .machine-title {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 7px;
   min-width: 0;
   overflow: hidden;
+  flex: 1 1 0;
 }
 
 .machine-code-tag {
-  display: inline-flex;
-  align-items: center;
-  flex-shrink: 0;
-  font-size: 11px;
+  display: inline-block;
+  flex: 0 1 auto;
+  min-width: 0;
+  max-width: 108px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 10.5px;
   font-family: ui-monospace, 'Courier New', monospace;
-  color: #8ab2d8;
-  background: rgba(115, 148, 232, 0.1);
-  border: 1px solid rgba(115, 148, 232, 0.16);
+  color: #7ea8d4;
+  background: rgba(115, 148, 232, 0.12);
+  border: 1px solid rgba(115, 148, 232, 0.2);
   padding: 1px 7px;
   border-radius: 5px;
-  letter-spacing: 0.3px;
-  min-height: 20px;
+  letter-spacing: 0.4px;
+  line-height: 17px;
+  height: 19px;
+  vertical-align: middle;
 }
 
 .machine-row-top strong {
-  color: #ffffff;
-  font-size: 17px;
-  line-height: 1.2;
+  color: #f0f4ff;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.25;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -1575,47 +1604,54 @@ button:focus-visible {
 
 .machine-row-top em {
   flex: 0 0 auto;
-  min-height: 26px;
+  margin-left: auto;
+  height: 22px;
   display: inline-flex;
   align-items: center;
-  padding: 0 10px;
+  padding: 0 9px;
   border-radius: 999px;
-  color: #d9e7ff;
-  background: rgba(115, 148, 232, 0.14);
-  border: 1px solid rgba(115, 148, 232, 0.2);
+  font-size: 11px;
+  color: #b4caee;
+  background: rgba(115, 148, 232, 0.12);
+  border: 1px solid rgba(115, 148, 232, 0.18);
+  transition: opacity 140ms ease;
+  white-space: nowrap;
 }
 
 .machine-meta,
 .part-chip-row {
   display: flex;
   flex-wrap: wrap;
-  gap: 7px;
+  gap: 6px;
 }
 
 .machine-meta span,
 .part-chip-row span,
 .detail-meta span {
-  border-radius: 7px;
-  background: rgba(255, 255, 255, 0.095);
-  border: 1px solid rgba(255, 255, 255, 0.075);
-  min-height: 26px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  height: 23px;
   display: inline-flex;
   align-items: center;
-  padding: 0 10px;
-  font-size: 12px;
-  color: #d3def0;
+  padding: 0 9px;
+  font-size: 11.5px;
+  color: #c8d6ea;
+  gap: 5px;
 }
 
 .part-chip-row span {
-  color: #c9d9ec;
-  background: rgba(18, 21, 27, 0.42);
+  color: #b8cde4;
+  background: rgba(12, 15, 22, 0.38);
+  border-color: rgba(255, 255, 255, 0.065);
 }
 
 .machine-meta span b,
 .detail-meta span b {
-  color: #dfe8f8;
-  font-size: 11px;
-  margin-right: 6px;
+  color: #e2ecff;
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
 }
 
 
@@ -4403,14 +4439,14 @@ kbd {
 }
 [data-theme="light"] .machine-meta span,
 [data-theme="light"] .detail-meta span {
-  background: rgba(30, 55, 120, 0.07);
-  border-color: rgba(30, 55, 120, 0.16);
-  color: #1a3052;
+  background: rgba(30, 55, 120, 0.06);
+  border-color: rgba(30, 55, 120, 0.14);
+  color: #1c3458;
 }
 [data-theme="light"] .part-chip-row span {
-  color: #1a3052;
-  background: rgba(30, 55, 120, 0.07);
-  border-color: rgba(30, 55, 120, 0.15);
+  color: #1c3458;
+  background: rgba(30, 55, 120, 0.06);
+  border-color: rgba(30, 55, 120, 0.13);
 }
 [data-theme="light"] .part-chip-row span.danger {
   color: #b52530;
@@ -4802,27 +4838,51 @@ kbd {
 
 /* ── Machine rows ───────────────────────────────────────────────── */
 [data-theme="light"] .machine-row {
-  border-color: rgba(30, 55, 120, 0.13);
+  border-color: rgba(30, 55, 120, 0.11);
   border-left-color: transparent;
-  background: linear-gradient(180deg, #ffffff, #f4f7ff);
-  box-shadow: 0 2px 8px rgba(20, 45, 100, 0.07), inset 0 1px 0 #ffffff;
+  background: linear-gradient(160deg, #ffffff 0%, #f3f6ff 100%);
+  box-shadow: 0 1px 6px rgba(20, 45, 100, 0.07), inset 0 1px 0 #ffffff;
 }
 [data-theme="light"] .machine-row:hover {
-  border-color: rgba(69, 196, 182, 0.52);
-  border-left-color: var(--teal);
-  background: linear-gradient(180deg, #ffffff, #e5f7f4);
-  box-shadow: 0 4px 16px rgba(69, 196, 182, 0.16), inset 0 1px 0 #ffffff;
+  border-color: rgba(69, 196, 182, 0.48);
+  border-left-color: #2bbfb3;
+  background: linear-gradient(160deg, #ffffff 0%, #e8f7f5 100%);
+  box-shadow: 0 3px 14px rgba(69, 196, 182, 0.15), inset 0 1px 0 #ffffff;
 }
 [data-theme="light"] .machine-row.selected {
-  border-color: rgba(69, 196, 182, 0.72);
-  border-left-color: var(--teal);
-  background: linear-gradient(90deg, rgba(69, 196, 182, 0.2), rgba(69, 196, 182, 0.05) 50%, #f2f8ff);
-  box-shadow: 0 6px 22px rgba(69, 196, 182, 0.18), inset 0 1px 0 #ffffff;
+  border-color: rgba(69, 196, 182, 0.68);
+  border-left-color: #2bbfb3;
+  background: linear-gradient(135deg, rgba(69, 196, 182, 0.18) 0%, rgba(69, 196, 182, 0.04) 50%, #f0f8ff 100%);
+  box-shadow: 0 4px 18px rgba(69, 196, 182, 0.16), inset 0 1px 0 #ffffff;
 }
 [data-theme="light"] .machine-row.selection-full {
-  border-color: rgba(69, 196, 182, 0.42);
-  border-left-color: var(--teal);
-  background: linear-gradient(90deg, rgba(69, 196, 182, 0.12), #f3f7ff 46%);
+  border-color: rgba(69, 196, 182, 0.4);
+  border-left-color: #2bbfb3;
+  background: linear-gradient(135deg, rgba(69, 196, 182, 0.1) 0%, #f2f6ff 50%);
+}
+/* Light: action buttons */
+[data-theme="light"] .machine-row-action-btn {
+  color: #3a5270;
+  background: linear-gradient(160deg, rgba(255,255,255,0.95), rgba(230,238,252,0.8));
+  border-color: rgba(30, 55, 120, 0.18);
+  box-shadow: 0 1px 3px rgba(20,45,100,0.08);
+}
+[data-theme="light"] .machine-row-action-btn:hover:not(:disabled) {
+  color: #0e6e65;
+  border-color: rgba(69, 196, 182, 0.5);
+  background: linear-gradient(160deg, rgba(69,196,182,0.18), rgba(69,196,182,0.06));
+  box-shadow: 0 2px 8px rgba(69,196,182,0.2);
+}
+[data-theme="light"] .machine-row-action-btn.danger:hover:not(:disabled) {
+  color: #b52530;
+  border-color: rgba(238, 102, 114, 0.5);
+  background: linear-gradient(160deg, rgba(238,102,114,0.15), rgba(238,102,114,0.04));
+}
+/* Light: parts count pill */
+[data-theme="light"] .machine-row-top em {
+  color: #2e5090;
+  background: rgba(115, 148, 232, 0.1);
+  border-color: rgba(115, 148, 232, 0.22);
 }
 
 /* ── Spare cards ────────────────────────────────────────────────── */
